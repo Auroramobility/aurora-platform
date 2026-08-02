@@ -1,0 +1,71 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Aurora Mobility — deep-night palette.
+       Kept in HSL triplets (no `hsl()` wrapper) so Tailwind's
+       `hsl(var(--x))` utilities and opacity modifiers both work. */
+    --background: 213 38% 6%;
+    --foreground: 210 24% 95%;
+
+    --surface: 213 30% 9%;
+    --surface-foreground: 210 24% 95%;
+
+    --muted: 213 16% 16%;
+    --muted-foreground: 213 12% 62%;
+
+    --primary: 172 66% 50%;
+    --primary-foreground: 213 38% 6%;
+
+    --secondary: 213 24% 14%;
+    --secondary-foreground: 210 24% 95%;
+
+    --accent: 247 65% 68%;
+    --accent-foreground: 213 38% 6%;
+
+    --border: 213 20% 18%;
+    --input: 213 20% 18%;
+    --ring: 172 66% 50%;
+
+    --radius: 0.75rem;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-background text-foreground antialiased;
+    font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  }
+
+  ::selection {
+    background-color: hsl(var(--primary) / 0.3);
+    color: hsl(var(--foreground));
+  }
+
+  :focus-visible {
+    outline: 2px solid hsl(var(--ring));
+    outline-offset: 2px;
+    border-radius: 2px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

@@ -8,6 +8,12 @@ export async function login(email: string, password: string) {
     password,
   });
 
+  console.log("LOGIN RESULT:", {
+    user: data.user?.email,
+    session: !!data.session,
+    error,
+  });
+
   if (error) {
     throw new Error(error.message);
   }

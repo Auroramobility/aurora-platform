@@ -59,7 +59,9 @@ export function Navbar() {
         </ul>
 
         <div className="hidden md:block">
-          <Button size="sm">Get started</Button>
+          <Button size="sm" asChild>
+            <Link href="/signup">Get started</Link>
+          </Button>
         </div>
 
         {/* Mobile menu toggle */}
@@ -97,8 +99,8 @@ export function Navbar() {
               </li>
             ))}
             <li className="pt-2">
-              <Button size="sm" className="w-full">
-                Get started
+              <Button size="sm" className="w-full" asChild>
+                <Link href="/signup">Get started</Link>
               </Button>
             </li>
           </ul>

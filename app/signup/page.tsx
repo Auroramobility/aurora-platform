@@ -25,7 +25,7 @@ export default function SignupPage() {
           name="fullName"
           placeholder="Full name"
           required
-          className="rounded border p-3"
+          className="rounded border border-gray-300 bg-white p-3 text-black placeholder:text-gray-500"
         />
 
         <input
@@ -33,7 +33,7 @@ export default function SignupPage() {
           type="email"
           placeholder="Email"
           required
-          className="rounded border p-3"
+          className="rounded border border-gray-300 bg-white p-3 text-black placeholder:text-gray-500"
         />
 
         <input
@@ -41,7 +41,7 @@ export default function SignupPage() {
           type="password"
           placeholder="Password"
           required
-          className="rounded border p-3"
+          className="rounded border border-gray-300 bg-white p-3 text-black placeholder:text-gray-500"
         />
 
         <button type="submit" className="rounded bg-black px-4 py-3 text-white">

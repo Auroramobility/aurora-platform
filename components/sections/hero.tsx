@@ -27,8 +27,8 @@ export function Hero() {
 
         <div className="mt-10 flex w-full animate-fade-up flex-col items-center gap-3 [animation-delay:220ms] sm:w-auto sm:flex-row sm:gap-4">
           <Button size="lg" className="w-full sm:w-auto" asChild>
-            <Link href="#vehicles">
-              Explore EV Opportunities
+            <Link href="/signup">
+              Get Started
               <ArrowRight className="h-4 w-4" strokeWidth={2.5} />
             </Link>
           </Button>

@@ -2,6 +2,7 @@ import { redirect } from "next/navigation";
 
 import { createClient } from "@/lib/supabase/server";
 import { StatCard } from "@/components/dashboard/stat-card";
+import { ProgressCard } from "@/components/dashboard/progress-card";
 
 export default async function DashboardPage() {
   const supabase = await createClient();
@@ -76,6 +77,10 @@ export default async function DashboardPage() {
             value={`${completion}%`}
             subtitle="Completion"
           />
+        </div>
+
+        <div>
+          <ProgressCard progress={completion} />
         </div>
       </div>
     </main>

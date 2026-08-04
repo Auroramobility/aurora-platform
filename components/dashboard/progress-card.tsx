@@ -1,24 +1,26 @@
-type Props = {
+type ProgressCardProps = {
   progress: number;
 };
 
-export function ProgressCard({ progress }: Props) {
+export function ProgressCard({ progress }: ProgressCardProps) {
   return (
-    <div className="rounded-2xl border border-border bg-surface p-6">
-      <h2 className="text-xl font-semibold">Financing Progress</h2>
+    <div className="rounded-xl border border-border bg-surface p-6">
+      <div className="flex items-center justify-between">
+        <h2 className="text-lg font-semibold">Profile Completion</h2>
 
-      <p className="mt-2 text-muted-foreground">
-        You're making great progress.
-      </p>
+        <span className="font-bold">{progress}%</span>
+      </div>
 
-      <div className="mt-6 h-3 overflow-hidden rounded-full bg-secondary">
+      <div className="mt-5 h-3 w-full rounded-full bg-muted">
         <div
-          className="h-full rounded-full bg-primary transition-all"
+          className="h-3 rounded-full bg-primary transition-all duration-500"
           style={{ width: `${progress}%` }}
         />
       </div>
 
-      <p className="mt-3 text-sm text-muted-foreground">{progress}% Complete</p>
+      <p className="mt-4 text-sm text-muted-foreground">
+        Complete your profile to unlock financing and vehicle recommendations.
+      </p>
     </div>
   );
 }

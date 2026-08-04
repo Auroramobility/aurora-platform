@@ -1,48 +1,17 @@
-import Link from "next/link";
+import { Navigation } from "./navigation";
 
 export function Sidebar() {
   return (
-    <aside className="flex h-screen w-64 flex-col border-r bg-white">
-      <div className="border-b p-6">
+    <aside className="hidden w-72 border-r border-border bg-surface lg:flex lg:flex-col">
+      <div className="border-b border-border p-8">
         <h1 className="text-2xl font-bold">Aurora Mobility</h1>
+
+        <p className="mt-2 text-sm text-muted-foreground">Customer Portal</p>
       </div>
 
-      <nav className="flex flex-1 flex-col gap-2 p-4">
-        <Link
-          href="/dashboard"
-          className="rounded-lg px-4 py-3 hover:bg-gray-100"
-        >
-          Dashboard
-        </Link>
-
-        <Link
-          href="/profile"
-          className="rounded-lg px-4 py-3 hover:bg-gray-100"
-        >
-          Profile
-        </Link>
-
-        <Link
-          href="/vehicles"
-          className="rounded-lg px-4 py-3 hover:bg-gray-100"
-        >
-          Vehicles
-        </Link>
-
-        <Link
-          href="/applications"
-          className="rounded-lg px-4 py-3 hover:bg-gray-100"
-        >
-          Applications
-        </Link>
-
-        <Link
-          href="/settings"
-          className="rounded-lg px-4 py-3 hover:bg-gray-100"
-        >
-          Settings
-        </Link>
-      </nav>
+      <div className="flex-1 p-6">
+        <Navigation />
+      </div>
     </aside>
   );
 }

@@ -1,17 +1,19 @@
 type StatCardProps = {
   title: string;
-  value: string;
-  description: string;
+  value: string | number;
+  subtitle?: string;
 };
 
-export function StatCard({ title, value, description }: StatCardProps) {
+export function StatCard({ title, value, subtitle }: StatCardProps) {
   return (
-    <div className="rounded-xl border bg-white p-6 shadow-sm">
-      <p className="text-sm text-gray-500">{title}</p>
+    <div className="rounded-xl border border-border bg-surface p-6">
+      <p className="text-sm text-muted-foreground">{title}</p>
 
-      <h3 className="mt-2 text-3xl font-bold">{value}</h3>
+      <h2 className="mt-2 text-3xl font-bold">{value}</h2>
 
-      <p className="mt-3 text-sm text-gray-600">{description}</p>
+      {subtitle && (
+        <p className="mt-2 text-sm text-muted-foreground">{subtitle}</p>
+      )}
     </div>
   );
 }

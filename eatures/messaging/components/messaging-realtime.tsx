@@ -1,31 +1,20 @@
 "use client";
 
 import { useEffect, useMemo } from "react";
+import { useRouter } from "next/navigation";
 import type { RealtimeChannel } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/client";
 
 type Props = {
   conversationId: string | null;
   userId: string;
-  onMessage: (message: {
-    id: string;
-    conversationId: string;
-    senderUserId: string | null;
-    senderRole: "customer" | "admin";
-    body: string;
-    createdAt: string;
-    customerReadAt: string | null;
-    adminReadAt: string | null;
-  }) => void;
-  onTyping: (typing: boolean, role: "customer" | "admin") => void;
 };
 
 export function MessagingRealtime({
   conversationId,
   userId,
-  onMessage,
-  onTyping,
 }: Props) {
+  const router = useRouter();
   const supabase = useMemo(() => createClient(), []);
 
   useEffect(() => {
@@ -62,36 +51,9 @@ export function MessagingRealtime({
               return;
             }
 
-            onMessage({
-              id: row.id,
-              conversationId: row.conversation_id,
-              senderUserId: row.sender_user_id,
-              senderRole: row.sender_role,
-              body: row.message,
-              createdAt: row.created_at,
-              customerReadAt: row.customer_read_at,
-              adminReadAt: row.admin_read_at,
-            });
+            router.refresh();
           },
         )
-        .on("broadcast", { event: "typing" }, (payload) => {
-          const senderUserId = payload.payload?.userId as
-            | string
-            | undefined;
-
-          const senderRole = payload.payload?.senderRole as
-            | "customer"
-            | "admin"
-            | undefined;
-
-          const typing = payload.payload?.typing as boolean | undefined;
-
-          if (!senderUserId || senderUserId === userId || !senderRole) {
-            return;
-          }
-
-          onTyping(typing === true, senderRole);
-        })
         .subscribe();
     };
 
@@ -102,7 +64,7 @@ export function MessagingRealtime({
         void supabase.removeChannel(channel);
       }
     };
-  }, [conversationId, onMessage, onTyping, supabase, userId]);
+  }, [conversationId, router, supabase, userId]);
 
   return null;
 }

@@ -1,27 +1,42 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef, useState, useTransition } from "react";
 import { Camera } from "lucide-react";
+import { uploadAvatarAction } from "@/app/profile/actions/upload-avatar-action";
 
 type Props = {
   currentUrl?: string | null;
-  onFileSelect?: (file: File | null) => void;
 };
 
-export function AvatarUpload({ currentUrl, onFileSelect }: Props) {
+export function AvatarUpload({ currentUrl }: Props) {
   const inputRef = useRef<HTMLInputElement>(null);
-  const [preview, setPreview] = useState<string | null>(currentUrl ?? null);
+  const [preview, setPreview] = useState<string | null>(
+    currentUrl ?? null,
+  );
+  const [isPending, startTransition] = useTransition();
+  const [error, setError] = useState<string | null>(null);
 
-  function handleChange(event: React.ChangeEvent<HTMLInputElement>) {
-    const file = event.target.files?.[0] ?? null;
+  function handleChange(
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) {
+    const file = event.target.files?.[0];
 
-    if (!file) {
-      return;
-    }
+    if (!file) return;
+
+    setError(null);
 
     const objectUrl = URL.createObjectURL(file);
     setPreview(objectUrl);
-    onFileSelect?.(file);
+
+    startTransition(async () => {
+      try {
+        await uploadAvatarAction(file);
+      } catch (error) {
+        console.error("Avatar upload failed:", error);
+        setError("Unable to upload profile photo.");
+        setPreview(currentUrl ?? null);
+      }
+    });
   }
 
   return (
@@ -34,16 +49,20 @@ export function AvatarUpload({ currentUrl, onFileSelect }: Props) {
             className="h-full w-full object-cover"
           />
         ) : (
-          <Camera size={42} className="text-muted-foreground" />
+          <Camera
+            size={42}
+            className="text-muted-foreground"
+          />
         )}
       </div>
 
       <button
         type="button"
+        disabled={isPending}
         onClick={() => inputRef.current?.click()}
-        className="rounded-lg bg-primary px-5 py-2 text-primary-foreground"
+        className="rounded-lg bg-primary px-5 py-2 text-primary-foreground disabled:opacity-50"
       >
-        Upload Photo
+        {isPending ? "Uploading..." : "Upload Photo"}
       </button>
 
       <input
@@ -52,7 +71,14 @@ export function AvatarUpload({ currentUrl, onFileSelect }: Props) {
         type="file"
         accept="image/*"
         onChange={handleChange}
+        disabled={isPending}
       />
+
+      {error && (
+        <p className="text-sm text-destructive">
+          {error}
+        </p>
+      )}
     </div>
   );
 }

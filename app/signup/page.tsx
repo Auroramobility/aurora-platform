@@ -1,3 +1,6 @@
+import Link from "next/link";
+import { redirect } from "next/navigation";
+
 import { Input } from "@/components/ui/input";
 import { signup } from "@/lib/auth/signup";
 
@@ -5,11 +8,19 @@ export default function SignupPage() {
   async function handleSignup(formData: FormData) {
     "use server";
 
-    const fullName = formData.get("fullName") as string;
-    const email = formData.get("email") as string;
-    const password = formData.get("password") as string;
+    const fullName = String(formData.get("fullName") ?? "").trim();
+    const email = String(formData.get("email") ?? "").trim();
+    const password = String(formData.get("password") ?? "");
 
-    await signup(email, password, fullName);
+    const user = await signup(email, password, fullName);
+
+    if (!user) {
+      throw new Error("Unable to create your Aurora account.");
+    }
+
+    redirect(
+      `/signup/check-email?email=${encodeURIComponent(email)}`,
+    );
   }
 
   return (
@@ -22,20 +33,40 @@ export default function SignupPage() {
           Create your Aurora Mobility account
         </h1>
 
-        <Input name="fullName" placeholder="Full name" required />
+        <Input
+          name="fullName"
+          placeholder="Full name"
+          required
+        />
 
-        <Input name="email" type="email" placeholder="Email" required />
+        <Input
+          name="email"
+          type="email"
+          placeholder="Email"
+          required
+        />
 
         <Input
           name="password"
           type="password"
           placeholder="Password"
           required
+          minLength={8}
         />
 
-        <button type="submit" className="rounded bg-black px-4 py-3 text-white">
+        <button
+          type="submit"
+          className="rounded bg-black px-4 py-3 text-white"
+        >
           Create Account
         </button>
+
+        <p className="text-center text-sm">
+          Already have an account?{" "}
+          <Link href="/login" className="underline">
+            Sign in
+          </Link>
+        </p>
       </form>
     </main>
   );

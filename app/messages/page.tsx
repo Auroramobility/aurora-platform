@@ -10,7 +10,7 @@ import {
 } from "@/features/messaging/lib/get-conversations";
 import { MessageComposer } from "@/components/messaging/message-composer";
 import { Button } from "@/components/ui/button";
-import { MessagingRealtime } from "@/features/messaging/components/messaging-realtime";
+import { MessageThread } from "@/features/messaging/components/message-thread";
 
 type Props = {
   searchParams?: Promise<{
@@ -106,11 +106,6 @@ export default async function MessagesPage({ searchParams }: Props) {
 
   return (
     <main className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
-      <MessagingRealtime
-        userId={user.id}
-        conversationId={refreshedSelected?.id ?? null}
-      />
-
       <div className="mb-6">
         <h1 className="text-2xl font-semibold">Aurora Support</h1>
         <p className="mt-1 text-sm text-muted-foreground">
@@ -189,55 +184,14 @@ export default async function MessagesPage({ searchParams }: Props) {
                 </p>
               </div>
 
-              <div className="flex-1 space-y-4 overflow-y-auto p-5">
-                {messages.length === 0 ? (
-                  <div className="flex h-full min-h-64 flex-col items-center justify-center text-center">
-                    <MessageSquare className="h-10 w-10 text-muted-foreground" />
-
-                    <h2 className="mt-4 text-lg font-semibold">
-                      Start the conversation
-                    </h2>
-
-                    <p className="mt-2 max-w-sm text-sm text-muted-foreground">
-                      Ask about your application, ownership plan,
-                      financing terms, or anything Aurora needs from you.
-                    </p>
-                  </div>
-                ) : (
-                  messages.map((message) => (
-                    <div
-                      key={message.id}
-                      className={`flex ${
-                        message.senderRole === "customer"
-                          ? "justify-end"
-                          : "justify-start"
-                      }`}
-                    >
-                      <div
-                        className={`max-w-[85%] rounded-2xl px-4 py-3 ${
-                          message.senderRole === "customer"
-                            ? "bg-primary text-primary-foreground"
-                            : "bg-muted"
-                        }`}
-                      >
-                        <p className="whitespace-pre-wrap text-sm leading-relaxed">
-                          {message.body}
-                        </p>
-
-                        <p
-                          className={`mt-2 text-[11px] ${
-                            message.senderRole === "customer"
-                              ? "text-primary-foreground/70"
-                              : "text-muted-foreground"
-                          }`}
-                        >
-                          {new Date(message.createdAt).toLocaleString()}
-                        </p>
-                      </div>
-                    </div>
-                  ))
-                )}
-              </div>
+              <MessageThread
+                conversationId={refreshedSelected.id}
+                userId={user.id}
+                currentRole="customer"
+                initialMessages={messages}
+                emptyTitle="Start the conversation"
+                emptyDescription="Ask about your application, ownership plan, financing terms, or anything Aurora needs from you."
+              />
 
               <div className="border-t border-border p-5">
                 {refreshedSelected.status === "closed" ? (
@@ -268,8 +222,9 @@ export default async function MessagesPage({ searchParams }: Props) {
                     </Button>
                   </div>
                 ) : (
-                  <MessageComposer
-                    conversationId={refreshedSelected.id}
+             <MessageComposer
+              conversationId={refreshedSelected.id}
+              userId={user.id}
                   />
                 )}
               </div>

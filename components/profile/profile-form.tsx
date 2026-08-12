@@ -1,6 +1,7 @@
 "use client";
 
 import { useFormStatus } from "react-dom";
+import Link from "next/link";
 import { AvatarUpload } from "@/components/ui/avatar-upload";
 import { DocumentUpload } from "@/components/ui/document-upload";
 import { Input } from "@/components/ui/input";
@@ -14,6 +15,9 @@ import { CardSection } from "@/components/ui/card-section";
 import { PageHeader } from "@/components/ui/page-header";
 import { SectionTitle } from "@/components/ui/section-title";
 import { updateProfile } from "@/app/profile/actions/update-profile";
+import { uploadAvatarAction } from "@/app/profile/actions/upload-avatar-action";
+import { uploadLicenseFrontAction } from "@/app/profile/actions/upload-license-front";
+import { uploadLicenseBackAction } from "@/app/profile/actions/upload-license-back";
 
 type Profile = {
   full_name: string | null;
@@ -29,6 +33,8 @@ type Profile = {
   preferred_language: string | null;
   timezone: string | null;
   drivers_license: string | null;
+  drivers_license_front: string | null;
+  drivers_license_back: string | null;
   profile_photo_url: string | null;
 };
 
@@ -47,6 +53,39 @@ function SaveButton() {
 }
 
 export function ProfileForm({ profile }: { profile: Profile | null }) {
+  async function handleAvatarUpload(file: File | null) {
+    if (!file) return;
+
+    try {
+      await uploadAvatarAction(file);
+    } catch (error) {
+      console.error("Avatar upload failed:", error);
+      alert("Unable to upload profile photo. Please try again.");
+    }
+  }
+
+  async function handleLicenseFrontUpload(file: File | null) {
+    if (!file) return;
+
+    try {
+      await uploadLicenseFrontAction(file);
+    } catch (error) {
+      console.error("License front upload failed:", error);
+      alert("Unable to upload the front of your driver's license.");
+    }
+  }
+
+  async function handleLicenseBackUpload(file: File | null) {
+    if (!file) return;
+
+    try {
+      await uploadLicenseBackAction(file);
+    } catch (error) {
+      console.error("License back upload failed:", error);
+      alert("Unable to upload the back of your driver's license.");
+    }
+  }
+
   return (
     <form action={updateProfile} className="space-y-6">
       <PageHeader
@@ -62,9 +101,8 @@ export function ProfileForm({ profile }: { profile: Profile | null }) {
 
         <div className="flex flex-col items-center gap-4">
           <AvatarUpload
-            currentUrl={profile?.profile_photo_url}
-            onFileSelect={() => {}}
-          />
+  currentUrl={profile?.profile_photo_url}
+/>
         </div>
       </CardSection>
 
@@ -130,20 +168,25 @@ export function ProfileForm({ profile }: { profile: Profile | null }) {
       />
 
       <CardSection>
-        <SectionTitle title="Identity" description="Driver's License" />
+        <SectionTitle
+          title="Identity"
+          description="Upload both sides of your driver's license."
+        />
 
         <div className="grid gap-4 md:grid-cols-2">
           <DocumentUpload
-            label="Upload Front"
-            name="drivers_license_front"
-            accept="image/*,application/pdf"
-          />
+  label="Upload Front"
+  name="drivers_license_front"
+  accept="image/*,application/pdf"
+  currentPath={profile?.drivers_license_front ?? null}
+/>
 
-          <DocumentUpload
-            label="Upload Back"
-            name="drivers_license_back"
-            accept="image/*,application/pdf"
-          />
+<DocumentUpload
+  label="Upload Back"
+  name="drivers_license_back"
+  accept="image/*,application/pdf"
+  currentPath={profile?.drivers_license_back ?? null}
+/>
         </div>
       </CardSection>
 

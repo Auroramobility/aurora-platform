@@ -1,9 +1,12 @@
 -- Aurora Mobility
 -- Migration: 021_direct_messaging.sql
 -- Purpose: Replace the legacy one-user message model with secure customer/admin conversations.
+create extension if not exists "pgcrypto";
+
+create extension if not exists "uuid-ossp";
 
 create table if not exists public.conversations (
-  id uuid primary key default uuid_generate_v4(),
+id uuid primary key default gen_random_uuid(),
   customer_id uuid references auth.users(id) on delete cascade not null,
   application_id uuid references public.applications(id) on delete set null,
   ownership_plan_id uuid references public.ownership_plans(id) on delete set null,

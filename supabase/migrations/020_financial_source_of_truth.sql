@@ -216,6 +216,7 @@ grant execute on function public.record_payment_allocation(uuid, uuid, numeric) 
 -- ============================================================
 -- DRAFT PLAN CREATION: TERMS + SCHEDULE ARE CREATED TOGETHER
 -- ============================================================
+drop function if exists public.create_draft_ownership_plan(uuid,text,numeric,numeric,numeric,integer,numeric,numeric);
 
 create or replace function public.create_draft_ownership_plan(
   p_application_id uuid,

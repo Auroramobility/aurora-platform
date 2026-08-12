@@ -11,26 +11,28 @@ import { Footer } from "@/components/marketing/footer";
 
 export default function HomePage() {
   return (
-    <main>
+    <>
       <Navbar />
 
-      <HeroCarousel />
+      <main>
+        <HeroCarousel />
 
-      <WhyAurora />
+        <WhyAurora />
 
-      <HowAuroraWorks />
+        <HowAuroraWorks />
 
-      <FeaturedVehicles />
+        <FeaturedVehicles />
 
-      <ComparisonPreview />
+        <ComparisonPreview />
 
-      <OwnershipJourney />
+        <OwnershipJourney />
 
-      <BrandShowcase />
+        <BrandShowcase />
 
-      <CTA />
+        <CTA />
+      </main>
 
       <Footer />
-    </main>
+    </>
   );
 }

@@ -8,7 +8,7 @@
 -- =========================
 
 create table if not exists public.financing_terms (
-  id uuid primary key default uuid_generate_v4(),
+  id uuid primary key default extensions.uuid_generate_v4(),
   plan_id uuid not null references public.ownership_plans(id) on delete cascade,
   currency text not null default 'USD',
   vehicle_price numeric(14,2),
@@ -77,7 +77,7 @@ using (public.is_admin());
 -- =========================
 
 create table if not exists public.payment_schedule (
-  id uuid primary key default uuid_generate_v4(),
+  id uuid primary key default extensions.uuid_generate_v4(),
   financing_terms_id uuid not null references public.financing_terms(id) on delete cascade,
   installment_number integer not null,
   due_date date not null,

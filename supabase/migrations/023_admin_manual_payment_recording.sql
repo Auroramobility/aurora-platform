@@ -1,12 +1,13 @@
 -- Aurora Mobility
--- Migration 020: Admin-confirmed manual payment recording.
+-- Migration 023: Admin-confirmed manual payment recording.
 -- No payment provider is integrated. Authorized Aurora operators record a
 -- payment only after confirming that funds were received externally.
 
 alter table public.payments
   add column if not exists payment_type text not null default 'installment';
 
-drop constraint if exists payments_payment_type_check on public.payments;
+ALTER TABLE public.payments
+DROP CONSTRAINT IF EXISTS payments_payment_type_check;
 alter table public.payments
   add constraint payments_payment_type_check
   check (payment_type in ('down_payment', 'installment'));

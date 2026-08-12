@@ -1,50 +1,102 @@
 "use client";
 
-import { useActionState } from "react";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import {
-  sendCustomerMessage,
-  type MessageActionState,
-} from "@/features/messaging/actions/send-customer-message";
-import {
-  sendAdminMessage,
-  type AdminMessageActionState,
-} from "@/features/messaging/actions/send-admin-message";
-
-const initialCustomer: MessageActionState = { ok: false };
-const initialAdmin: AdminMessageActionState = { ok: false };
 
 type Props = {
   conversationId: string;
+  userId: string;
   admin?: boolean;
   disabled?: boolean;
 };
 
-export function MessageComposer({ conversationId, admin = false, disabled = false }: Props) {
-  const [customerState, customerAction, customerPending] = useActionState(sendCustomerMessage, initialCustomer);
-  const [adminState, adminAction, adminPending] = useActionState(sendAdminMessage, initialAdmin);
-  const state = admin ? adminState : customerState;
-  const action = admin ? adminAction : customerAction;
-  const pending = admin ? adminPending : customerPending;
+export function MessageComposer({
+  conversationId,
+  userId,
+  admin = false,
+  disabled = false,
+}: Props) {
+  const router = useRouter();
+  const [message, setMessage] = useState("");
+  const [sending, setSending] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    const body = message.trim();
+
+    if (!body || sending || disabled) {
+      return;
+    }
+
+    setSending(true);
+    setError(null);
+
+    try {
+      const supabase = createClient();
+
+      const { error: insertError } = await supabase
+        .from("messages")
+        .insert({
+          conversation_id: conversationId,
+          sender_user_id: userId,
+          sender_role: admin ? "admin" : "customer",
+          message: body,
+        });
+
+      if (insertError) {
+        throw new Error(insertError.message);
+      }
+
+      setMessage("");
+      router.refresh();
+    } catch (err) {
+      setError(
+        err instanceof Error
+          ? err.message
+          : "Unable to send your message.",
+      );
+    } finally {
+      setSending(false);
+    }
+  }
 
   return (
-    <form action={action} className="space-y-3 rounded-2xl border border-border bg-card p-4">
-      <input type="hidden" name="conversation_id" value={conversationId} />
-      <Textarea
-        name="message"
+    <form onSubmit={handleSubmit} className="space-y-3">
+      <textarea
+        value={message}
+        onChange={(event) => setMessage(event.target.value)}
+        disabled={disabled || sending}
+        placeholder={
+          admin
+            ? "Write a message to the customer..."
+            : "Write a message to Aurora..."
+        }
         rows={4}
-        maxLength={5000}
-        placeholder={admin ? "Reply to the customer…" : "Message Aurora…"}
-        disabled={disabled || pending}
-        required
+        className="w-full resize-none rounded-2xl border border-border bg-background px-4 py-3 text-sm outline-none transition placeholder:text-muted-foreground focus:border-primary focus:ring-2 focus:ring-primary/20 disabled:cursor-not-allowed disabled:opacity-60"
       />
-      <div className="flex items-center justify-between gap-4">
-        <p className="text-xs text-muted-foreground">Messages are for communication. Payment and ownership status are updated separately by authorized workflows.</p>
-        <Button type="submit" disabled={disabled || pending}>{pending ? "Sending…" : "Send message"}</Button>
+
+      {error ? (
+        <p className="text-sm text-destructive">
+          {error}
+        </p>
+      ) : null}
+
+      <div className="flex justify-end">
+        <Button
+          type="submit"
+          disabled={
+            disabled ||
+            sending ||
+            !message.trim()
+          }
+        >
+          {sending ? "Sending..." : "Send message"}
+        </Button>
       </div>
-      {state.error ? <p className="text-sm text-red-300">{state.error}</p> : null}
-      {state.success ? <p className="text-sm text-primary">{state.success}</p> : null}
     </form>
   );
 }

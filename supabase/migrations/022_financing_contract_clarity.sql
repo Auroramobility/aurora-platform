@@ -14,7 +14,8 @@ alter table public.financing_terms
   add column if not exists first_payment_date date,
   add column if not exists payment_frequency text not null default 'monthly';
 
-drop constraint if exists financing_terms_contract_total_check on public.financing_terms;
+ALTER TABLE public.financing_terms
+DROP CONSTRAINT IF EXISTS constraint_name_here;
 alter table public.financing_terms
   add constraint financing_terms_total_financed_repayment_check
   check (
@@ -25,20 +26,22 @@ alter table public.financing_terms
     )
   );
 
-drop constraint if exists financing_terms_payment_frequency_check on public.financing_terms;
+ALTER TABLE public.financing_terms
+DROP CONSTRAINT IF EXISTS financing_terms_payment_frequency_check;
 alter table public.financing_terms
   add constraint financing_terms_payment_frequency_check
   check (payment_frequency in ('monthly'));
 
 -- New financing contracts must have a first payment date once they are prepared.
-drop constraint if exists financing_terms_first_payment_check on public.financing_terms;
-alter table public.financing_terms
-  add constraint financing_terms_first_payment_check
-  check (
-    first_payment_date is null
-    or first_payment_date >= created_at::date
-  );
+ALTER TABLE public.financing_terms
+DROP CONSTRAINT IF EXISTS financing_terms_first_payment_check;
 
+ALTER TABLE public.financing_terms
+ADD CONSTRAINT financing_terms_first_payment_check
+CHECK (
+  first_payment_date IS NULL
+  OR first_payment_date >= created_at::date
+);
 -- ============================================================
 -- DRAFT PLAN CREATION: RECORD APPROVED TERMS, DO NOT CALCULATE THEM
 -- ============================================================

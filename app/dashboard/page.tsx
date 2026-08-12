@@ -1,5 +1,4 @@
 import { redirect } from "next/navigation";
-
 import { getOwnershipJourneyForUser } from "@/features/applications/lib/get-ownership-journey";
 import { createClient } from "@/lib/supabase/server";
 import { Navigation } from "@/components/dashboard/navigation";
@@ -69,8 +68,9 @@ export default async function DashboardPage() {
         <div>
           <Topbar email={user.email ?? ""} />
 
-          <main className="space-y-8 p-8">
-            <WelcomeHero firstName={firstName} />
+<main className="space-y-8 p-8">
+
+  <WelcomeHero firstName={firstName} />
 
             <OwnershipJourney state={journey} />
 

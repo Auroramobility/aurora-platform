@@ -33,7 +33,11 @@ export function AvatarUpload({ currentUrl }: Props) {
         await uploadAvatarAction(file);
       } catch (error) {
         console.error("Avatar upload failed:", error);
-        setError("Unable to upload profile photo.");
+        setError(
+          error instanceof Error && error.message
+            ? error.message
+            : "Unable to upload profile photo.",
+        );
         setPreview(currentUrl ?? null);
       }
     });

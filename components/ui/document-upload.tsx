@@ -48,7 +48,9 @@ export function DocumentUpload({
         console.error(`${label} upload failed:`, error);
 
         setError(
-          `Unable to upload ${label.toLowerCase()}.`,
+          error instanceof Error && error.message
+            ? error.message
+            : `Unable to upload ${label.toLowerCase()}.`,
         );
 
         setFileName(currentPath ? "Document uploaded" : null);

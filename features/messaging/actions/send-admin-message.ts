@@ -1,6 +1,7 @@
 "use server";
 
 import { requireAdmin } from "@/features/admin/lib/authorization";
+import { checkRateLimit, RATE_LIMIT_MESSAGE } from "@/lib/rate-limit";
 
 export type SentAdminMessage = {
   id: string;
@@ -57,6 +58,19 @@ export async function sendAdminMessage(
     return {
       ok: false,
       error: "Messages must be 5,000 characters or fewer.",
+    };
+  }
+
+  const allowed = await checkRateLimit({
+    action: "send_message",
+    maxHits: 30,
+    windowSeconds: 60,
+  });
+
+  if (!allowed) {
+    return {
+      ok: false,
+      error: RATE_LIMIT_MESSAGE,
     };
   }
 

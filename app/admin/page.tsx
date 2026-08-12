@@ -44,34 +44,75 @@ export default async function AdminPage() {
    * There is no direct ownership_plans -> financing_terms
    * relationship exposed to PostgREST, so we load the two
    * tables separately and join them in application code.
+   *
+   * PAGINATION NOTE: the two operational queues below (pending
+   * applications, identity verification) are filtered at the database
+   * level so they stay accurate and bounded regardless of how large the
+   * underlying tables grow. The "All applications" / "All plans" browse
+   * tables further down this page are capped at RECENT_LIMIT as a
+   * stopgap against unbounded growth — this is not full pagination
+   * (older records beyond the cap won't appear here). A proper
+   * paginated/searchable table is the right follow-up once volume
+   * actually warrants it.
    */
+  const RECENT_LIMIT = 200;
+  const QUEUE_LIMIT = 100;
 
-  const [applicationsResult, profilesResult, plansResult] =
-    await Promise.all([
-      supabase
-        .from("applications")
-        .select(
-          "id, user_id, vehicle_id, status, application_date, reviewed_at, rejection_reason",
-        )
-        .order("application_date", { ascending: false }),
+  const [
+    applicationsResult,
+    profilesResult,
+    plansResult,
+    pendingApplicationsResult,
+    identityQueueResult,
+  ] = await Promise.all([
+    supabase
+      .from("applications")
+      .select(
+        "id, user_id, vehicle_id, status, application_date, reviewed_at, rejection_reason",
+      )
+      .order("application_date", { ascending: false })
+      .limit(RECENT_LIMIT),
 
-      supabase
-        .from("profiles")
-        .select(
-          "user_id, full_name, identity_verified, identity_verified_at, drivers_license_front, drivers_license_back",
-        )
-        .order("updated_at", { ascending: false }),
+    supabase
+      .from("profiles")
+      .select(
+        "user_id, full_name, identity_verified, identity_verified_at, drivers_license_front, drivers_license_back",
+      )
+      .order("updated_at", { ascending: false })
+      .limit(RECENT_LIMIT),
 
-      supabase
-        .from("ownership_plans")
-        .select("id, application_id, status, accepted_at, activated_at, created_at")
-        .order("created_at", { ascending: false }),
-    ]);
+    supabase
+      .from("ownership_plans")
+      .select("id, application_id, status, accepted_at, activated_at, created_at")
+      .order("created_at", { ascending: false })
+      .limit(RECENT_LIMIT),
+
+    supabase
+      .from("applications")
+      .select(
+        "id, user_id, vehicle_id, status, application_date, reviewed_at, rejection_reason",
+      )
+      .in("status", ["pending", "reviewing"])
+      .order("application_date", { ascending: false })
+      .limit(QUEUE_LIMIT),
+
+    supabase
+      .from("profiles")
+      .select(
+        "user_id, full_name, identity_verified, identity_verified_at, drivers_license_front, drivers_license_back",
+      )
+      .eq("identity_verified", false)
+      .or("drivers_license_front.not.is.null,drivers_license_back.not.is.null")
+      .order("updated_at", { ascending: false })
+      .limit(QUEUE_LIMIT),
+  ]);
 
   if (
     applicationsResult.error ||
     profilesResult.error ||
-    plansResult.error
+    plansResult.error ||
+    pendingApplicationsResult.error ||
+    identityQueueResult.error
   ) {
     console.error("ADMIN DATA LOAD ERROR", {
       applications: applicationsResult.error
@@ -98,6 +139,20 @@ export default async function AdminPage() {
             code: plansResult.error.code,
             details: plansResult.error.details,
             hint: plansResult.error.hint,
+          }
+        : null,
+
+      pendingApplications: pendingApplicationsResult.error
+        ? {
+            message: pendingApplicationsResult.error.message,
+            code: pendingApplicationsResult.error.code,
+          }
+        : null,
+
+      identityQueue: identityQueueResult.error
+        ? {
+            message: identityQueueResult.error.message,
+            code: identityQueueResult.error.code,
           }
         : null,
     });
@@ -261,18 +316,14 @@ export default async function AdminPage() {
   );
 
   /*
-   * Admin queues.
+   * Admin queues. These come from their own targeted, DB-filtered
+   * queries (see above) — not from filtering the general applications/
+   * profiles arrays, which are capped at RECENT_LIMIT and would silently
+   * drop older queue items once the tables grow past that cap.
    */
-  const pendingApplications = applications.filter((application) =>
-    ["pending", "reviewing"].includes(application.status ?? ""),
-  );
+  const pendingApplications = pendingApplicationsResult.data ?? [];
 
-  const identityQueue = profiles.filter(
-    (profile) =>
-      !profile.identity_verified &&
-      (profile.drivers_license_front ||
-        profile.drivers_license_back),
-  );
+  const identityQueue = identityQueueResult.data ?? [];
 
   const approvedWithoutPlan = applications.filter(
     (application) =>
@@ -422,7 +473,9 @@ export default async function AdminPage() {
           </h2>
 
           <p className="text-sm text-muted-foreground">
-            View and inspect every customer application, regardless of status.
+            The {RECENT_LIMIT} most recent customer applications, regardless
+            of status. Use the review and identity queues above for items
+            needing action.
           </p>
         </div>
 

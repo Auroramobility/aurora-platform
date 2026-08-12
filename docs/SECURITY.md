@@ -21,8 +21,36 @@ unused migration number.
 
 ## Next security work
 
-1. Add explicit trusted admin/server workflows for application, ownership-plan, and payment writes.
-2. Audit Storage policies separately from database RLS.
-3. Add server-side file-content validation for identity documents.
-4. Add audit logging for financial and application state transitions.
-5. Add automated database policy tests before production launch.
+Status as of the production-readiness pass (see git log for details):
+
+1. ✅ Trusted admin/server workflows for application, ownership-plan, and
+   payment writes — implemented via `SECURITY DEFINER` RPC functions
+   (`017_admin_operations_foundation.sql` through
+   `023_admin_manual_payment_recording.sql`). This list was stale; the
+   work was done but never marked complete here.
+2. ⬜ **Still open.** Audit Storage bucket policies separately from
+   database RLS — specifically confirm the `licenses` and
+   `government-ids` buckets are private in the Supabase dashboard. This
+   requires access to the live project and hasn't been verified from a
+   code checkout alone.
+3. ✅ Server-side file-content validation for identity documents —
+   `lib/storage/file-validation.ts` sniffs actual file byte signatures
+   (not client-reported filename/type) before any license or avatar
+   upload is accepted, with size limits enforced.
+4. ✅ Audit logging for financial and application state transitions —
+   `018_operations_integrity_and_audit.sql`.
+5. ⬜ **Partially open.** Application-level tests now cover the
+   highest-risk logic (`requireAdmin()` fails closed on RPC error, file
+   validation rejects disguised files, rate limiter fails open by
+   design — see `pnpm test`). True database policy tests (verifying RLS
+   itself, e.g. via pgTAP against a local Supabase instance) still need
+   to be written and require Docker + the Supabase CLI locally, which
+   wasn't available in the environment this pass was done in.
+
+Also added, not on the original list:
+- Per-user rate limiting on messaging, application submission, and
+  document uploads (`supabase/migrations/20260812000000_rate_limiting.sql`,
+  `lib/rate-limit.ts`) — mitigates spam/abuse and brute-force-style
+  hammering of these endpoints.
+- Defense-in-depth auth check in `middleware.ts` for all authenticated
+  route groups, in addition to each page's own check.

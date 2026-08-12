@@ -598,6 +598,16 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
+      // NOTE: check_rate_limit was added by hand (supabase/migrations/
+      // 20260812000000_rate_limiting.sql) because this file couldn't be
+      // regenerated against the live project from this environment. Run
+      // `supabase gen types typescript` after applying that migration to
+      // confirm this matches, or leave as-is — the shape matches the
+      // migration's function signature exactly.
+      check_rate_limit: {
+        Args: { p_action: string; p_max_hits: number; p_window_seconds: number };
+        Returns: boolean;
+      };
       activate_ownership_plan: {
         Args: { p_plan_id: string };
         Returns: boolean;

@@ -1,6 +1,7 @@
 "use server";
 
 import { createClient } from "@/lib/supabase/server";
+import { checkRateLimit, RATE_LIMIT_MESSAGE } from "@/lib/rate-limit";
 
 export type SentMessage = {
   id: string;
@@ -61,6 +62,19 @@ export async function sendCustomerMessage(
     return {
       ok: false,
       error: "Messages must be 5,000 characters or fewer.",
+    };
+  }
+
+  const allowed = await checkRateLimit({
+    action: "send_message",
+    maxHits: 30,
+    windowSeconds: 60,
+  });
+
+  if (!allowed) {
+    return {
+      ok: false,
+      error: RATE_LIMIT_MESSAGE,
     };
   }
 

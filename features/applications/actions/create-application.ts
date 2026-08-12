@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { checkRateLimit, RATE_LIMIT_MESSAGE } from "@/lib/rate-limit";
 
 export type CreateApplicationState = {
   error?: string;
@@ -20,6 +21,16 @@ export async function createApplication(
   const { data: { user } } = await supabase.auth.getUser();
 
   if (!user) redirect("/login");
+
+  const allowed = await checkRateLimit({
+    action: "create_application",
+    maxHits: 10,
+    windowSeconds: 60 * 60,
+  });
+
+  if (!allowed) {
+    return { error: RATE_LIMIT_MESSAGE };
+  }
 
   const { data: vehicle, error: vehicleError } = await supabase
     .from("vehicles")

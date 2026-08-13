@@ -4,14 +4,45 @@ import { redirect } from "next/navigation";
 import { login } from "@/lib/auth/login";
 import { createClient } from "@/lib/supabase/server";
 
-export default function LoginPage() {
+const ERROR_MESSAGES: Record<string, string> = {
+  auth_callback_failed: "We couldn't complete sign-in. Please try again.",
+  account_deactivated:
+    "This account has been deactivated. Contact support if you'd like to reactivate it.",
+};
+
+export default async function LoginPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ error?: string }>;
+}) {
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (user) redirect("/dashboard");
+
+  const { error: errorCode } = await searchParams;
+  const errorMessage = errorCode
+    ? (ERROR_MESSAGES[errorCode] ?? "Something went wrong. Please try again.")
+    : null;
+
   async function handleLogin(formData: FormData) {
     "use server";
 
     const email = formData.get("email") as string;
     const password = formData.get("password") as string;
 
-    await login(email, password);
+    try {
+      await login(email, password);
+    } catch (error) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : "We couldn't sign you in. Check your email and password and try again.";
+
+      redirect(`/login?error=${encodeURIComponent(message)}`);
+    }
 
     redirect("/dashboard");
   }
@@ -40,6 +71,13 @@ export default function LoginPage() {
     }
   }
 
+  // Server actions redirect with the raw error message when it's not one
+  // of the known codes above (e.g. Supabase's own "Invalid login
+  // credentials"), so unrecognized error params are shown as-is rather
+  // than silently dropped.
+  const displayError =
+    errorMessage ?? (errorCode ? decodeURIComponent(errorCode) : null);
+
   return (
     <main className="flex min-h-screen items-center justify-center p-6">
       <form
@@ -49,6 +87,15 @@ export default function LoginPage() {
         <h1 className="text-2xl font-semibold">
           Sign in to Aurora Mobility
         </h1>
+
+        {displayError ? (
+          <p
+            role="alert"
+            className="rounded-lg border border-destructive/30 bg-destructive/10 p-3 text-sm text-destructive"
+          >
+            {displayError}
+          </p>
+        ) : null}
 
         <input
           name="email"

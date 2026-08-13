@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { Search } from "lucide-react";
 
 export function VehicleSearch({ defaultValue = "" }: { defaultValue?: string }) {

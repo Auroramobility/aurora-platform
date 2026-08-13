@@ -381,6 +381,12 @@ export type Database = {
           created_at: string | null;
           currency: string | null;
           date_of_birth: string | null;
+          // NOTE: added by hand alongside drivers_license etc. above —
+          // see supabase/migrations/20260812010000_settings_and_payments_access.sql.
+          // This file couldn't be regenerated from a live project in
+          // this environment; run `supabase gen types typescript` after
+          // applying that migration to confirm this matches.
+          deactivated_at: string | null;
           drivers_license: string | null;
           drivers_license_back: string | null;
           drivers_license_front: string | null;
@@ -408,6 +414,7 @@ export type Database = {
           created_at?: string | null;
           currency?: string | null;
           date_of_birth?: string | null;
+          deactivated_at?: string | null;
           drivers_license?: string | null;
           drivers_license_back?: string | null;
           drivers_license_front?: string | null;
@@ -435,6 +442,7 @@ export type Database = {
           created_at?: string | null;
           currency?: string | null;
           date_of_birth?: string | null;
+          deactivated_at?: string | null;
           drivers_license?: string | null;
           drivers_license_back?: string | null;
           drivers_license_front?: string | null;

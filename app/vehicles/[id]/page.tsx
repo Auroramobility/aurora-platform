@@ -8,6 +8,7 @@ import { VehicleGallery } from "@/components/vehicles/vehicle-gallery";
 import { VehicleSpecs } from "@/components/vehicles/vehicle-specs";
 
 import { getVehicle } from "@/features/vehicles/lib/get-vehicle";
+import { createClient } from "@/lib/supabase/server";
 
 type VehicleDetailsPageProps = {
   params: Promise<{
@@ -25,6 +26,10 @@ export default async function VehicleDetailsPage({
   if (!vehicle) {
     notFound();
   }
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
   const saved = await isVehicleSaved(vehicle.id);
   return (
     <main className="mx-auto max-w-7xl p-8">
@@ -50,7 +55,11 @@ export default async function VehicleDetailsPage({
             <div className="space-y-4">
               <AuroraOwnershipCard price={vehicle.price} vehicleId={vehicle.id} />
 
-              <SaveVehicleButton vehicleId={vehicle.id} saved={saved} />
+              <SaveVehicleButton
+                vehicleId={vehicle.id}
+                saved={saved}
+                isAuthenticated={!!user}
+              />
             </div>
           ) : (
             <div className="bg-card rounded-3xl border p-8 text-sm text-muted-foreground">

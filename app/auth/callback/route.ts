@@ -8,10 +8,23 @@ export async function GET(request: Request) {
   if (code) {
     const supabase = await createClient();
 
-    const { error } =
+    const { data, error } =
       await supabase.auth.exchangeCodeForSession(code);
 
-    if (!error) {
+    if (!error && data.user) {
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("deactivated_at")
+        .eq("user_id", data.user.id)
+        .single();
+
+      if (profile?.deactivated_at) {
+        await supabase.auth.signOut();
+        return NextResponse.redirect(
+          new URL("/login?error=account_deactivated", requestUrl.origin),
+        );
+      }
+
       return NextResponse.redirect(
         new URL("/dashboard", requestUrl.origin),
       );

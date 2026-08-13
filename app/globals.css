@@ -4,32 +4,38 @@
 
 @layer base {
   :root {
-    /* Aurora Mobility — deep-night palette.
-       Kept in HSL triplets (no `hsl()` wrapper) so Tailwind's
-       `hsl(var(--x))` utilities and opacity modifiers both work. */
-    --background: 213 38% 6%;
-    --foreground: 210 24% 95%;
+    /* Aurora Mobility — deep-space EV palette.
+       HSL triplets (no hsl() wrapper) so Tailwind opacity modifiers work. */
 
-    --surface: 213 30% 9%;
-    --surface-foreground: 210 24% 95%;
+    --background:    216 42%  5%;
+    --foreground:    210 24% 96%;
 
-    --muted: 213 16% 16%;
-    --muted-foreground: 213 12% 62%;
+    --surface:       216 36%  8%;
+    --surface-foreground: 210 24% 96%;
 
-    --primary: 172 66% 50%;
-    --primary-foreground: 213 38% 6%;
+    --muted:         216 20% 15%;
+    --muted-foreground: 213 14% 60%;
 
-    --secondary: 213 24% 14%;
-    --secondary-foreground: 210 24% 95%;
+    /* Electric teal — primary action, CTAs, links */
+    --primary:       174 72% 48%;
+    --primary-foreground: 216 42% 5%;
 
-    --accent: 247 65% 68%;
-    --accent-foreground: 213 38% 6%;
+    --secondary:     216 28% 13%;
+    --secondary-foreground: 210 24% 96%;
 
-    --border: 213 20% 18%;
-    --input: 213 20% 18%;
-    --ring: 172 66% 50%;
+    /* Violet — accent, highlights, badges */
+    --accent:        252 70% 65%;
+    --accent-foreground: 216 42% 5%;
 
-    --radius: 0.75rem;
+    /* Destructive */
+    --destructive:   0 72% 58%;
+    --destructive-foreground: 210 24% 96%;
+
+    --border:        216 22% 16%;
+    --input:         216 22% 16%;
+    --ring:          174 72% 48%;
+
+    --radius: 0.875rem;
   }
 }
 
@@ -48,7 +54,7 @@
   }
 
   ::selection {
-    background-color: hsl(var(--primary) / 0.3);
+    background-color: hsl(var(--primary) / 0.25);
     color: hsl(var(--foreground));
   }
 
@@ -59,10 +65,103 @@
   }
 }
 
+/* ─── Aurora gradient utilities ──────────────────────────────────────────── */
+@layer utilities {
+
+  /* Signature electric gradient: teal → violet */
+  .aurora-gradient {
+    background: linear-gradient(
+      135deg,
+      hsl(174 72% 48%) 0%,
+      hsl(220 80% 60%) 50%,
+      hsl(252 70% 65%) 100%
+    );
+  }
+
+  /* Text version — clip to text */
+  .aurora-gradient-text {
+    background: linear-gradient(
+      135deg,
+      hsl(174 72% 58%) 0%,
+      hsl(220 80% 68%) 50%,
+      hsl(252 70% 72%) 100%
+    );
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* Glowing border effect */
+  .aurora-border {
+    border: 1px solid transparent;
+    background:
+      linear-gradient(hsl(var(--surface)), hsl(var(--surface))) padding-box,
+      linear-gradient(135deg, hsl(174 72% 48% / 0.6), hsl(252 70% 65% / 0.6)) border-box;
+  }
+
+  /* Card glow on hover */
+  .aurora-card {
+    position: relative;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .aurora-card:hover {
+    transform: translateY(-2px);
+    box-shadow:
+      0 0 0 1px hsl(174 72% 48% / 0.2),
+      0 8px 32px hsl(174 72% 48% / 0.12),
+      0 2px 8px hsl(0 0% 0% / 0.4);
+  }
+
+  /* Ambient glow blob — used in hero sections */
+  .aurora-glow-teal {
+    background: radial-gradient(ellipse at center, hsl(174 72% 48% / 0.15) 0%, transparent 70%);
+  }
+
+  .aurora-glow-violet {
+    background: radial-gradient(ellipse at center, hsl(252 70% 65% / 0.12) 0%, transparent 70%);
+  }
+
+  /* Stat / badge highlight */
+  .aurora-stat {
+    background: linear-gradient(135deg, hsl(174 72% 48% / 0.08), hsl(252 70% 65% / 0.08));
+    border: 1px solid hsl(174 72% 48% / 0.2);
+  }
+
+  /* Section divider glow line */
+  .aurora-divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, hsl(174 72% 48% / 0.4), hsl(252 70% 65% / 0.4), transparent);
+  }
+}
+
+/* ─── Animations ─────────────────────────────────────────────────────────── */
+@layer utilities {
+  .animate-fade-up {
+    animation: fade-up 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  .animate-aurora-drift {
+    animation: aurora-drift 18s ease-in-out infinite;
+  }
+
+  .animate-pulse-slow {
+    animation: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+}
+
+@keyframes aurora-drift {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  50%       { transform: translate3d(2%, -3%, 0) scale(1.05); }
+}
+
+@keyframes fade-up {
+  from { opacity: 0; transform: translateY(14px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
 @media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
+  *, *::before, *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;

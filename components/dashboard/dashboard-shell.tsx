@@ -1,3 +1,4 @@
+import { Zap } from "lucide-react";
 import { Navigation } from "@/components/dashboard/navigation";
 import { Topbar } from "@/components/dashboard/topbar";
 
@@ -7,23 +8,33 @@ type Props = {
   children: React.ReactNode;
 };
 
-/**
- * Shared shell for every authenticated customer page (dashboard,
- * profile, applications, payments, messages, settings, ownership
- * detail). Previously only app/dashboard/page.tsx had this sidebar —
- * every other authenticated page was a bare <main> with no persistent
- * navigation and no way to sign out.
- *
- * Responsive: the sidebar is desktop-only (md:block); on small screens
- * Topbar renders a MobileSidebar drawer with the same links instead.
- */
 export function DashboardShell({ title, email, children }: Props) {
   return (
     <div className="min-h-screen bg-background text-foreground">
       <div className="grid min-h-screen md:grid-cols-[260px_1fr]">
-        <aside className="hidden border-r border-border bg-surface p-6 md:block">
-          <h1 className="mb-10 text-2xl font-bold">Aurora Mobility</h1>
-          <Navigation />
+
+        {/* Sidebar */}
+        <aside className="hidden border-r border-border bg-surface md:flex md:flex-col">
+          {/* Logo area */}
+          <div className="flex items-center gap-3 border-b border-border px-6 py-5">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg aurora-gradient shadow-sm shadow-primary/30">
+              <Zap className="h-4 w-4 text-background" />
+            </div>
+            <span className="text-lg font-bold tracking-tight aurora-gradient-text">
+              Aurora
+            </span>
+          </div>
+
+          {/* Nav */}
+          <div className="flex-1 overflow-y-auto p-4">
+            <Navigation />
+          </div>
+
+          {/* Footer stripe */}
+          <div className="aurora-divider" />
+          <p className="px-6 py-4 text-xs text-muted-foreground">
+            Aurora Mobility Platform
+          </p>
         </aside>
 
         <div className="min-w-0">

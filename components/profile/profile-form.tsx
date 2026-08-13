@@ -1,7 +1,6 @@
 "use client";
 
 import { useFormStatus } from "react-dom";
-import Link from "next/link";
 import { AvatarUpload } from "@/components/ui/avatar-upload";
 import { DocumentUpload } from "@/components/ui/document-upload";
 import { Input } from "@/components/ui/input";
@@ -12,12 +11,8 @@ import {
   currencyOptions,
 } from "@/lib/constants/profile-options";
 import { CardSection } from "@/components/ui/card-section";
-import { PageHeader } from "@/components/ui/page-header";
 import { SectionTitle } from "@/components/ui/section-title";
 import { updateProfile } from "@/app/profile/actions/update-profile";
-import { uploadAvatarAction } from "@/app/profile/actions/upload-avatar-action";
-import { uploadLicenseFrontAction } from "@/app/profile/actions/upload-license-front";
-import { uploadLicenseBackAction } from "@/app/profile/actions/upload-license-back";
 
 type Profile = {
   full_name: string | null;
@@ -53,45 +48,11 @@ function SaveButton() {
 }
 
 export function ProfileForm({ profile }: { profile: Profile | null }) {
-  async function handleAvatarUpload(file: File | null) {
-    if (!file) return;
-
-    try {
-      await uploadAvatarAction(file);
-    } catch (error) {
-      console.error("Avatar upload failed:", error);
-      alert("Unable to upload profile photo. Please try again.");
-    }
-  }
-
-  async function handleLicenseFrontUpload(file: File | null) {
-    if (!file) return;
-
-    try {
-      await uploadLicenseFrontAction(file);
-    } catch (error) {
-      console.error("License front upload failed:", error);
-      alert("Unable to upload the front of your driver's license.");
-    }
-  }
-
-  async function handleLicenseBackUpload(file: File | null) {
-    if (!file) return;
-
-    try {
-      await uploadLicenseBackAction(file);
-    } catch (error) {
-      console.error("License back upload failed:", error);
-      alert("Unable to upload the back of your driver's license.");
-    }
-  }
-
   return (
     <form action={updateProfile} className="space-y-6">
-      <PageHeader
-        title="My Profile"
-        description="Complete your information to unlock financing and vehicle ownership."
-      />
+      <p className="text-muted-foreground">
+        Complete your information to unlock financing and vehicle ownership.
+      </p>
 
       <CardSection>
         <SectionTitle

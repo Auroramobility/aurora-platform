@@ -9,7 +9,7 @@ import {
   Settings,
 } from "lucide-react";
 
-const links = [
+export const dashboardLinks = [
   {
     name: "Dashboard",
     href: "/dashboard",
@@ -50,7 +50,7 @@ const links = [
 export function Navigation() {
   return (
     <nav className="space-y-2">
-      {links.map((item) => {
+      {dashboardLinks.map((item) => {
         const Icon = item.icon;
 
         return (

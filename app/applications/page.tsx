@@ -6,7 +6,7 @@ import { getApplicationsForUser } from "@/features/applications/lib/get-applicat
 import { getApplicationVehicle } from "@/features/applications/lib/get-application-vehicle";
 import { getApplicationStatusConfig } from "@/features/applications/types/status";
 import { Button } from "@/components/ui/button";
-import { BackButton } from "@/components/ui/back-button";
+import { DashboardShell } from "@/components/dashboard/dashboard-shell";
 
 export default async function ApplicationsPage() {
   const supabase = await createClient();
@@ -28,16 +28,10 @@ export default async function ApplicationsPage() {
   );
 
   return (
-    <main className="mx-auto max-w-5xl space-y-8 p-8">
-      <BackButton />
-
-      <div>
-        <h1 className="text-3xl font-bold">My Applications</h1>
-
-        <p className="mt-2 text-muted-foreground">
-          Track every vehicle application and its ownership progress.
-        </p>
-      </div>
+    <DashboardShell title="Applications" email={user.email ?? ""}>
+      <p className="text-muted-foreground">
+        Track every vehicle application and its ownership progress.
+      </p>
 
       {applications.length === 0 ? (
         <div className="rounded-3xl border bg-card p-10 text-center">
@@ -93,6 +87,6 @@ export default async function ApplicationsPage() {
           })}
         </div>
       )}
-    </main>
+    </DashboardShell>
   );
 }

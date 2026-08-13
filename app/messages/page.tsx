@@ -11,6 +11,7 @@ import {
 import { MessageComposer } from "@/components/messaging/message-composer";
 import { Button } from "@/components/ui/button";
 import { MessageThread } from "@/features/messaging/components/message-thread";
+import { DashboardShell } from "@/components/dashboard/dashboard-shell";
 
 type Props = {
   searchParams?: Promise<{
@@ -105,10 +106,9 @@ export default async function MessagesPage({ searchParams }: Props) {
   );
 
   return (
-    <main className="mx-auto w-full max-w-7xl px-4 py-8 sm:px-6 lg:px-8">
+    <DashboardShell title="Aurora Support" email={user.email ?? ""}>
       <div className="mb-6">
-        <h1 className="text-2xl font-semibold">Aurora Support</h1>
-        <p className="mt-1 text-sm text-muted-foreground">
+        <p className="text-sm text-muted-foreground">
           Talk directly with the Aurora team about your application,
           ownership plan, or next steps.
         </p>
@@ -246,6 +246,6 @@ export default async function MessagesPage({ searchParams }: Props) {
           )}
         </section>
       </div>
-    </main>
+    </DashboardShell>
   );
 }

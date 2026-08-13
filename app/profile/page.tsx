@@ -2,7 +2,7 @@ import { redirect } from "next/navigation";
 
 import { createClient } from "@/lib/supabase/server";
 import { ProfileForm } from "@/components/profile/profile-form";
-import { BackButton } from "@/components/ui/back-button";
+import { DashboardShell } from "@/components/dashboard/dashboard-shell";
 
 export default async function ProfilePage() {
   const supabase = await createClient();
@@ -22,10 +22,10 @@ export default async function ProfilePage() {
     .single();
 
   return (
-    <main className="mx-auto max-w-5xl space-y-6 p-8">
-      <BackButton />
-
-      <ProfileForm profile={profile} />
-    </main>
+    <DashboardShell title="Profile" email={user.email ?? ""}>
+      <div className="mx-auto max-w-3xl">
+        <ProfileForm profile={profile} />
+      </div>
+    </DashboardShell>
   );
 }

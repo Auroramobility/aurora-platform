@@ -1,7 +1,7 @@
 import { redirect } from "next/navigation";
 
 import { createClient } from "@/lib/supabase/server";
-import { PageHeader } from "@/components/ui/page-header";
+import { DashboardShell } from "@/components/dashboard/dashboard-shell";
 import { EmailSettingsForm } from "@/features/settings/components/email-settings-form";
 import { PasswordSettingsForm } from "@/features/settings/components/password-settings-form";
 import { DeactivateAccountCard } from "@/features/settings/components/deactivate-account-card";
@@ -20,13 +20,8 @@ export default async function SettingsPage() {
   const isEmailProvider = user.app_metadata?.provider === "email";
 
   return (
-    <main className="mx-auto w-full max-w-3xl px-4 py-8 sm:px-6 lg:px-8">
-      <PageHeader
-        title="Settings"
-        description="Manage your account."
-      />
-
-      <div className="space-y-6">
+    <DashboardShell title="Settings" email={user.email ?? ""}>
+      <div className="mx-auto max-w-2xl space-y-6">
         <EmailSettingsForm currentEmail={user.email ?? ""} />
 
         {isEmailProvider ? (
@@ -40,6 +35,6 @@ export default async function SettingsPage() {
 
         <DeactivateAccountCard />
       </div>
-    </main>
+    </DashboardShell>
   );
 }

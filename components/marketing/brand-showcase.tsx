@@ -38,7 +38,7 @@ export function BrandShowcase() {
         </div>
 
         <div className="mt-16 grid grid-cols-2 overflow-hidden rounded-3xl border bg-muted/20 sm:grid-cols-3 lg:grid-cols-4">
-          {brands.map((brand, index) => (
+          {brands.map((brand) => (
             <Link
               key={brand}
               href={`/vehicles?brand=${encodeURIComponent(brand)}`}

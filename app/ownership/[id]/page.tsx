@@ -4,6 +4,7 @@ import { ArrowLeft, CarFront, CheckCircle2, ShieldCheck } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { DashboardShell } from "@/components/dashboard/dashboard-shell";
 import { OwnershipPlanActions } from "@/features/ownership/components/ownership-plan-actions";
 import { getOwnershipPlanStatusConfig } from "@/features/ownership/types/ownership-plan";
 import { getOwnershipPlan } from "@/features/ownership/lib/get-ownership-plan";
@@ -52,7 +53,7 @@ export default async function OwnershipPlanPage({ params }: Props) {
   const canRespond = plan.status === "ready" && application.status === "approved";
 
   return (
-    <main className="mx-auto max-w-5xl space-y-8 p-6 sm:p-8">
+    <DashboardShell title="Ownership Plan" email={user.email ?? ""}>
       <Button asChild variant="ghost" className="-ml-3">
         <Link href={`/applications/${application.id}`}><ArrowLeft className="h-4 w-4" /> Back to application</Link>
       </Button>
@@ -164,6 +165,6 @@ export default async function OwnershipPlanPage({ params }: Props) {
           <p className="mt-3 text-sm leading-relaxed text-muted-foreground">This plan summarizes the terms Aurora has prepared. No payment is requested by this screen. Financial transactions will be handled through a separate, trusted payment workflow.</p>
         </aside>
       </section>
-    </main>
+    </DashboardShell>
   );
 }

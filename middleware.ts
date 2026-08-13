@@ -14,13 +14,20 @@ const PROTECTED_PREFIXES = [
   "/dashboard",
   "/profile",
   "/applications",
-  "/ownership",
   "/messages",
+  "/settings",
+  "/payments",
 ];
 
+// /ownership itself is now a public marketing page (app/ownership/page.tsx);
+// only /ownership/[id] (a customer's specific plan) requires auth.
+const PROTECTED_DYNAMIC_PREFIXES = ["/ownership/"];
+
 function isProtectedPath(pathname: string) {
-  return PROTECTED_PREFIXES.some(
-    (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`),
+  return (
+    PROTECTED_PREFIXES.some(
+      (prefix) => pathname === prefix || pathname.startsWith(`${prefix}/`),
+    ) || PROTECTED_DYNAMIC_PREFIXES.some((prefix) => pathname.startsWith(prefix))
   );
 }
 

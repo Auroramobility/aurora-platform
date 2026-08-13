@@ -3,8 +3,9 @@ import { notFound } from "next/navigation";
 import { ArrowRight, CarFront, CheckCircle2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { BackButton } from "@/components/ui/back-button";
 import { Badge } from "@/components/ui/badge";
+import { DashboardShell } from "@/components/dashboard/dashboard-shell";
+import { createClient } from "@/lib/supabase/server";
 import { ApplicationStatusTimeline } from "@/components/applications/application-status-timeline";
 import { getApplicationDetail } from "@/features/applications/lib/get-application-detail";
 import { getApplicationNextAction, getApplicationStatusConfig } from "@/features/applications/types/status";
@@ -27,6 +28,11 @@ export default async function ApplicationDetailPage({ params }: Props) {
   const detail = await getApplicationDetail(id);
   if (!detail) notFound();
 
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
   const { application, vehicle, identityVerified, profileComplete, ownershipPlan } = detail;
   const nextAction = getApplicationNextAction({
     status: application.status,
@@ -39,9 +45,7 @@ export default async function ApplicationDetailPage({ params }: Props) {
   const statusConfig = getApplicationStatusConfig(application.status);
 
   return (
-    <main className="mx-auto max-w-6xl space-y-8 p-6 sm:p-8">
-      <BackButton />
-
+    <DashboardShell title="Application details" email={user?.email ?? ""}>
       <header className="flex flex-col justify-between gap-5 sm:flex-row sm:items-end">
         <div>
           <p className="text-sm font-semibold uppercase tracking-[0.18em] text-primary">Aurora Ownership</p>
@@ -130,6 +134,6 @@ export default async function ApplicationDetailPage({ params }: Props) {
       <div className="flex justify-center pb-8">
         <Button asChild variant="outline"><Link href="/applications">Back to my applications</Link></Button>
       </div>
-    </main>
+    </DashboardShell>
   );
 }

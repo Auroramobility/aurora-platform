@@ -3,7 +3,7 @@ import { redirect } from "next/navigation";
 import { CarFront, CreditCard } from "lucide-react";
 
 import { createClient } from "@/lib/supabase/server";
-import { PageHeader } from "@/components/ui/page-header";
+import { DashboardShell } from "@/components/dashboard/dashboard-shell";
 import { Badge } from "@/components/ui/badge";
 import { getOwnershipPlansForUser } from "@/features/ownership/lib/get-ownership-plans-for-user";
 import { getOwnershipPlan } from "@/features/ownership/lib/get-ownership-plan";
@@ -46,11 +46,10 @@ export default async function PaymentsPage() {
   );
 
   return (
-    <main className="mx-auto w-full max-w-4xl px-4 py-8 sm:px-6 lg:px-8">
-      <PageHeader
-        title="Payments"
-        description="Financing terms and payment history for your ownership plans."
-      />
+    <DashboardShell title="Payments" email={user.email ?? ""}>
+      <p className="text-muted-foreground">
+        Financing terms and payment history for your ownership plans.
+      </p>
 
       {plans.length === 0 ? (
         <div className="flex flex-col items-center justify-center rounded-xl border border-border bg-surface p-12 text-center">
@@ -118,6 +117,6 @@ export default async function PaymentsPage() {
           })}
         </div>
       )}
-    </main>
+    </DashboardShell>
   );
 }

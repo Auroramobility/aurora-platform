@@ -1,9 +1,8 @@
 import { redirect } from "next/navigation";
 import { getOwnershipJourneyForUser } from "@/features/applications/lib/get-ownership-journey";
 import { createClient } from "@/lib/supabase/server";
-import { Navigation } from "@/components/dashboard/navigation";
+import { DashboardShell } from "@/components/dashboard/dashboard-shell";
 import { StatCard } from "@/components/dashboard/stat-card";
-import { Topbar } from "@/components/dashboard/topbar";
 import { QuickActions } from "@/components/dashboard/quick-actions";
 import { WelcomeHero } from "@/components/dashboard/home/welcome-hero";
 import { OwnershipJourney } from "@/components/dashboard/home/ownership-journey";
@@ -57,53 +56,38 @@ export default async function DashboardPage() {
     p?.full_name?.split(" ")[0] ?? user.email?.split("@")[0] ?? "";
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      <div className="grid min-h-screen grid-cols-[260px_1fr]">
-        <aside className="border-r border-border bg-surface p-6">
-          <h1 className="mb-10 text-2xl font-bold">Aurora Mobility</h1>
+    <DashboardShell title="Dashboard" email={user.email ?? ""}>
+      <WelcomeHero firstName={firstName} />
 
-          <Navigation />
-        </aside>
+      <OwnershipJourney state={journey} />
 
-        <div>
-          <Topbar email={user.email ?? ""} />
+      <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+        <StatCard
+          title="Applications"
+          value={applicationsResult.count ?? 0}
+          subtitle="Applications submitted"
+        />
 
-<main className="space-y-8 p-8">
+        <StatCard
+          title="Saved Vehicles"
+          value={savedVehiclesResult.count ?? 0}
+          subtitle="Vehicles you're watching"
+        />
 
-  <WelcomeHero firstName={firstName} />
+        <StatCard
+          title="Messages"
+          value={messagesResult.count ?? 0}
+          subtitle="Messages"
+        />
 
-            <OwnershipJourney state={journey} />
-
-            <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
-              <StatCard
-                title="Applications"
-                value={applicationsResult.count ?? 0}
-                subtitle="Applications submitted"
-              />
-
-              <StatCard
-                title="Saved Vehicles"
-                value={savedVehiclesResult.count ?? 0}
-                subtitle="Vehicles you're watching"
-              />
-
-              <StatCard
-                title="Messages"
-                value={messagesResult.count ?? 0}
-                subtitle="Messages"
-              />
-
-              <StatCard
-                title="Profile"
-                value={`${completion}%`}
-                subtitle="Completion"
-              />
-            </div>
-
-            <QuickActions />
-          </main>
-        </div>
+        <StatCard
+          title="Profile"
+          value={`${completion}%`}
+          subtitle="Completion"
+        />
       </div>
-    </div>
+
+      <QuickActions />
+    </DashboardShell>
   );
 }

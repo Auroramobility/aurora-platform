@@ -1,126 +1,234 @@
 export function ComparisonPreview() {
+  const rows = [
+    {
+      feature: "You build ownership equity",
+      aurora: "✓",
+      auroraText: "Every contribution moves you toward ownership",
+      finance: "✓",
+      financeText: "After full loan repayment",
+      lease: "✗",
+      leaseText: "You return the vehicle or buy it separately",
+    },
+    {
+      feature: "Credit check required",
+      aurora: "✓",
+      auroraText: "No traditional credit-based financing",
+      finance: "✗",
+      financeText: "Credit approval typically required",
+      lease: "✗",
+      leaseText: "Credit approval typically required",
+    },
+    {
+      feature: "Interest or finance charges",
+      aurora: "✓",
+      auroraText: "Zero interest",
+      finance: "✗",
+      financeText: "Interest charges apply",
+      lease: "✗",
+      leaseText: "Lease charges and money factor apply",
+    },
+    {
+      feature: "Vehicle delivery",
+      aurora: "✓",
+      auroraText: "After reaching the required 30% contribution threshold",
+      finance: "✓",
+      financeText: "After purchase and financing approval",
+      lease: "✓",
+      leaseText: "After lease approval and signing",
+    },
+    {
+      feature: "Mileage restrictions",
+      aurora: "✓",
+      auroraText: "No traditional lease mileage limit",
+      finance: "✓",
+      financeText: "No lease mileage restriction",
+      lease: "✗",
+      leaseText: "Mileage limits typically apply",
+    },
+    {
+      feature: "Early exit penalty",
+      aurora: "✓",
+      auroraText: "No traditional lease termination structure",
+      finance: "✓",
+      financeText: "Payoff terms depend on the loan",
+      lease: "✗",
+      leaseText: "Early termination costs may apply",
+    },
+    {
+      feature: "Full price transparency",
+      aurora: "✓",
+      auroraText: "Aurora Access Price shown upfront",
+      finance: "✗",
+      financeText: "Rate and financing terms vary",
+      lease: "✗",
+      leaseText: "Lease terms include residual-value calculations",
+    },
+    {
+      feature: "Ownership progress",
+      aurora: "✓",
+      auroraText: "Your contribution and plan stay visible",
+      finance: "✗",
+      financeText: "Loan balance tracks repayment",
+      lease: "✗",
+      leaseText: "No ownership progress to track",
+    },
+  ];
+
   return (
-    <section className="mx-auto max-w-7xl px-8 py-24">
+    <section className="relative overflow-hidden border-y border-border/60 bg-muted/20">
+      {/* Ambient background */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 overflow-hidden"
+      >
+        <div className="absolute -left-32 top-16 h-80 w-80 rounded-full bg-emerald-500/[0.06] blur-3xl dark:bg-emerald-500/[0.09]" />
 
-      <div className="mx-auto max-w-3xl text-center">
+        <div className="absolute right-[-8rem] top-1/3 h-96 w-96 rounded-full bg-blue-500/[0.05] blur-3xl dark:bg-blue-500/[0.08]" />
 
-        <p className="text-sm uppercase tracking-[0.3em] text-muted-foreground">
-          The Aurora Difference
-        </p>
-
-        <h2 className="mt-4 text-4xl font-bold md:text-5xl">
-          A smarter way to
-          <span className="block text-primary">
-            own an electric vehicle.
-          </span>
-        </h2>
-
-        <p className="mt-6 text-lg text-muted-foreground">
-          Compare traditional purchasing with Aurora's
-          transparent ownership model.
-        </p>
-
+        <div className="absolute bottom-[-8rem] left-[40%] h-80 w-80 rounded-full bg-purple-500/[0.05] blur-3xl dark:bg-purple-500/[0.08]" />
       </div>
 
-
-      <div className="mt-16 grid gap-8 md:grid-cols-2">
-
-
-        <div className="rounded-3xl border p-8">
-
-          <h3 className="text-2xl font-bold">
-            Traditional Purchase
-          </h3>
-
-
-          <div className="mt-8 space-y-6">
-
-
-            <div>
-              <p className="font-semibold">
-                Large upfront payment
-              </p>
-              <p className="text-muted-foreground">
-                Pay the full vehicle price or take on traditional financing.
-              </p>
-            </div>
-
-
-            <div>
-              <p className="font-semibold">
-                Immediate depreciation
-              </p>
-              <p className="text-muted-foreground">
-                Vehicle value decreases from day one.
-              </p>
-            </div>
-
-
-            <div>
-              <p className="font-semibold">
-                Limited flexibility
-              </p>
-              <p className="text-muted-foreground">
-                Financing options depend heavily on credit and lenders.
-              </p>
-            </div>
-
-
+      <div className="relative mx-auto max-w-7xl px-4 py-20 sm:px-6 md:py-24">
+        {/* Header */}
+        <div className="mx-auto max-w-4xl text-center">
+          <div className="inline-flex items-center rounded-full border border-primary/20 bg-primary/10 px-4 py-2 text-xs font-semibold uppercase tracking-[0.25em] text-primary">
+            The Aurora Difference
           </div>
 
+          <h2 className="mt-6 text-4xl font-bold leading-[1.05] tracking-tight md:text-5xl lg:text-6xl">
+            A different way to
+            <span className="aurora-gradient-text block">own your EV.</span>
+          </h2>
+
+          <p className="mx-auto mt-6 max-w-3xl text-base leading-8 text-muted-foreground md:text-lg">
+            See how Aurora compares with the traditional ways people access
+            electric vehicles.
+          </p>
         </div>
 
+        {/* Comparison table */}
+        <div className="mx-auto mt-14 max-w-6xl overflow-hidden rounded-[1.75rem] border border-border/70 bg-background shadow-xl">
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[760px] border-collapse text-left">
+              <thead>
+                <tr className="border-b border-border/70 bg-muted/40">
+                  <th className="w-[28%] px-5 py-5 text-sm font-semibold md:px-7">
+                    <span className="sr-only">Comparison</span>
+                  </th>
 
+                  <th className="w-[24%] border-l border-border/70 bg-emerald-500/[0.07] px-5 py-5 md:px-7">
+                    <div className="text-base font-bold text-emerald-700 dark:text-emerald-400">
+                      Aurora
+                    </div>
 
+                    <div className="mt-1 text-xs font-medium text-muted-foreground">
+                      Aurora ownership model
+                    </div>
+                  </th>
 
-        <div className="rounded-3xl border bg-primary p-8 text-primary-foreground">
+                  <th className="w-[24%] border-l border-border/70 px-5 py-5 md:px-7">
+                    <div className="text-base font-bold">
+                      Traditional Finance
+                    </div>
 
-          <h3 className="text-2xl font-bold">
-            Aurora Ownership Plan
-          </h3>
+                    <div className="mt-1 text-xs font-medium text-muted-foreground">
+                      Conventional purchase
+                    </div>
+                  </th>
 
+                  <th className="w-[24%] border-l border-border/70 px-5 py-5 md:px-7">
+                    <div className="text-base font-bold">Traditional Lease</div>
 
-          <div className="mt-8 space-y-6">
+                    <div className="mt-1 text-xs font-medium text-muted-foreground">
+                      Lease structure
+                    </div>
+                  </th>
+                </tr>
+              </thead>
 
+              <tbody>
+                {rows.map((row, index) => (
+                  <tr
+                    key={row.feature}
+                    className={
+                      index !== rows.length - 1
+                        ? "border-b border-border/60"
+                        : ""
+                    }
+                  >
+                    {/* Feature */}
+                    <th className="px-5 py-5 align-top text-sm font-semibold leading-6 md:px-7">
+                      {row.feature}
+                    </th>
 
-            <div>
-              <p className="font-semibold">
-                Start with 30% contribution
-              </p>
-              <p className="opacity-80">
-                Begin your ownership journey with a transparent entry point.
-              </p>
-            </div>
+                    {/* Aurora */}
+                    <td className="border-l border-emerald-500/10 bg-emerald-500/[0.035] px-5 py-5 align-top md:px-7">
+                      <div className="flex items-start gap-3">
+                        <span className="mt-0.5 shrink-0 text-lg font-bold text-emerald-600 dark:text-emerald-400">
+                          {row.aurora}
+                        </span>
 
+                        <span className="text-sm leading-6 text-foreground">
+                          {row.auroraText}
+                        </span>
+                      </div>
+                    </td>
 
-            <div>
-              <p className="font-semibold">
-                Build equity monthly
-              </p>
-              <p className="opacity-80">
-                Payments contribute toward your vehicle ownership.
-              </p>
-            </div>
+                    {/* Traditional Finance */}
+                    <td className="border-l border-border/60 px-5 py-5 align-top md:px-7">
+                      <div className="flex items-start gap-3">
+                        <span
+                          className={`mt-0.5 shrink-0 text-lg font-bold ${
+                            row.finance === "✓"
+                              ? "text-emerald-600 dark:text-emerald-400"
+                              : "text-muted-foreground"
+                          }`}
+                        >
+                          {row.finance}
+                        </span>
 
+                        <span className="text-sm leading-6 text-muted-foreground">
+                          {row.financeText}
+                        </span>
+                      </div>
+                    </td>
 
-            <div>
-              <p className="font-semibold">
-                Clear ownership timeline
-              </p>
-              <p className="opacity-80">
-                Know exactly how your path to ownership works.
-              </p>
-            </div>
+                    {/* Traditional Lease */}
+                    <td className="border-l border-border/60 px-5 py-5 align-top md:px-7">
+                      <div className="flex items-start gap-3">
+                        <span className="mt-0.5 shrink-0 text-lg font-bold text-muted-foreground">
+                          {row.lease}
+                        </span>
 
-
+                        <span className="text-sm leading-6 text-muted-foreground">
+                          {row.leaseText}
+                        </span>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
-
-
         </div>
 
+        {/* Bottom statement */}
+        <div className="mx-auto mt-10 max-w-4xl text-center">
+          <p className="text-xl font-bold tracking-tight md:text-2xl">
+            Not a loan.
+            <span className="text-primary"> Not a lease.</span>
+            <span className="block md:inline">
+              {" "}
+              A different path toward ownership.
+            </span>
+          </p>
 
+          <p className="mx-auto mt-3 max-w-2xl text-sm leading-7 text-muted-foreground md:text-base">
+            Aurora owns the vehicles we offer. You choose your vehicle and
+            contribution, and your plan gives you a clear path toward ownership.
+          </p>
+        </div>
       </div>
-
     </section>
   );
 }

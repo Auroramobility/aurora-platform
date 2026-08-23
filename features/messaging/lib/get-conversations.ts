@@ -5,7 +5,9 @@ export async function getConversationsForCurrentUser() {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("conversations")
-    .select("id, customer_id, application_id, ownership_plan_id, status, created_at, updated_at, last_message_at")
+    .select(
+      "id, customer_id, application_id, ownership_plan_id, status, created_at, updated_at, last_message_at",
+    )
     .order("last_message_at", { ascending: false, nullsFirst: false });
 
   if (error) throw new Error(`Unable to load conversations: ${error.message}`);
@@ -21,14 +23,19 @@ export async function getConversationsForCurrentUser() {
     .select("conversation_id, sender_role, customer_read_at, admin_read_at")
     .in("conversation_id", conversationIds);
 
-  if (unreadError) throw new Error(`Unable to load message counts: ${unreadError.message}`);
+  if (unreadError)
+    throw new Error(`Unable to load message counts: ${unreadError.message}`);
 
   const unreadCounts = new Map<string, number>();
   for (const message of unreadMessages ?? []) {
     const unread = isAdmin
       ? message.sender_role === "customer" && message.admin_read_at === null
       : message.sender_role === "admin" && message.customer_read_at === null;
-    if (unread) unreadCounts.set(message.conversation_id, (unreadCounts.get(message.conversation_id) ?? 0) + 1);
+    if (unread)
+      unreadCounts.set(
+        message.conversation_id,
+        (unreadCounts.get(message.conversation_id) ?? 0) + 1,
+      );
   }
 
   return conversations.map<Conversation>((item) => ({
@@ -48,7 +55,9 @@ export async function getConversationMessages(conversationId: string) {
   const supabase = await createClient();
   const { data, error } = await supabase
     .from("messages")
-    .select("id, conversation_id, sender_user_id, sender_role, message, created_at, customer_read_at, admin_read_at")
+    .select(
+      "id, conversation_id, sender_user_id, sender_role, message, created_at, customer_read_at, admin_read_at",
+    )
     .eq("conversation_id", conversationId)
     .order("created_at", { ascending: true });
 
@@ -72,14 +81,18 @@ export async function markConversationRead(conversationId: string) {
     p_conversation_id: conversationId,
   });
 
-  if (error) throw new Error(`Unable to mark conversation as read: ${error.message}`);
+  if (error)
+    throw new Error(`Unable to mark conversation as read: ${error.message}`);
 }
 
-export async function getOrCreateConversation(applicationId?: string, ownershipPlanId?: string) {
+export async function getOrCreateConversation(
+  applicationId?: string,
+  ownershipPlanId?: string,
+) {
   const supabase = await createClient();
   const { data, error } = await supabase.rpc("get_or_create_conversation", {
-    p_application_id: applicationId ?? null,
-    p_ownership_plan_id: ownershipPlanId ?? null,
+    p_application_id: applicationId ?? undefined,
+    p_ownership_plan_id: ownershipPlanId ?? undefined,
   });
 
   if (error || !data) {

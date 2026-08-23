@@ -6,7 +6,6 @@ import { PageHeader } from "@/components/ui/page-header";
 import { AuroraOwnershipCard } from "@/components/vehicles/aurora-ownership-card";
 import { VehicleGallery } from "@/components/vehicles/vehicle-gallery";
 import { VehicleSpecs } from "@/components/vehicles/vehicle-specs";
-
 import { getVehicle } from "@/features/vehicles/lib/get-vehicle";
 import { createClient } from "@/lib/supabase/server";
 
@@ -26,11 +25,30 @@ export default async function VehicleDetailsPage({
   if (!vehicle) {
     notFound();
   }
+
   const supabase = await createClient();
+
   const {
     data: { user },
   } = await supabase.auth.getUser();
+
   const saved = await isVehicleSaved(vehicle.id);
+
+  // Fetch all gallery images ordered by sort_order
+  const { data: galleryImages } = await supabase
+    .from("vehicle_images")
+    .select("image_url")
+    .eq("vehicle_id", vehicle.id)
+    .order("sort_order", { ascending: true });
+
+  // Gallery images first, fall back to single image_url
+  const images =
+    galleryImages && galleryImages.length > 0
+      ? galleryImages.map((img) => img.image_url)
+      : vehicle.image_url
+        ? [vehicle.image_url]
+        : [];
+
   return (
     <main className="mx-auto max-w-7xl p-8">
       <BackButton />
@@ -43,7 +61,7 @@ export default async function VehicleDetailsPage({
       <div className="mt-10 grid gap-10 lg:grid-cols-3">
         <div className="space-y-8 lg:col-span-2">
           <VehicleGallery
-            image={vehicle.image_url ?? undefined}
+            images={images}
             name={`${vehicle.brand} ${vehicle.model}`}
           />
 
@@ -53,7 +71,10 @@ export default async function VehicleDetailsPage({
         <div className="space-y-6">
           {vehicle.price != null ? (
             <div className="space-y-4">
-              <AuroraOwnershipCard price={vehicle.price} vehicleId={vehicle.id} />
+              <AuroraOwnershipCard
+                price={vehicle.price}
+                vehicleId={vehicle.id}
+              />
 
               <SaveVehicleButton
                 vehicleId={vehicle.id}

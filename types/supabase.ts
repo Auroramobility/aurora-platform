@@ -12,8 +12,119 @@ export type Database = {
   __InternalSupabase: {
     PostgrestVersion: "14.15";
   };
+  graphql_public: {
+    Tables: {
+      [_ in never]: never;
+    };
+    Views: {
+      [_ in never]: never;
+    };
+    Functions: {
+      graphql: {
+        Args: {
+          extensions?: Json;
+          operationName?: string;
+          query?: string;
+          variables?: Json;
+        };
+        Returns: Json;
+      };
+    };
+    Enums: {
+      [_ in never]: never;
+    };
+    CompositeTypes: {
+      [_ in never]: never;
+    };
+  };
   public: {
     Tables: {
+      admin_audit_log: {
+        Row: {
+          action: string;
+          actor_id: string;
+          after_state: Json | null;
+          before_state: Json | null;
+          created_at: string;
+          entity_id: string;
+          entity_type: string;
+          id: string;
+        };
+        Insert: {
+          action: string;
+          actor_id: string;
+          after_state?: Json | null;
+          before_state?: Json | null;
+          created_at?: string;
+          entity_id: string;
+          entity_type: string;
+          id?: string;
+        };
+        Update: {
+          action?: string;
+          actor_id?: string;
+          after_state?: Json | null;
+          before_state?: Json | null;
+          created_at?: string;
+          entity_id?: string;
+          entity_type?: string;
+          id?: string;
+        };
+        Relationships: [];
+      };
+      application_financing_requests: {
+        Row: {
+          application_id: string;
+          created_at: string;
+          currency: string;
+          down_payment_percent: number;
+          estimated_monthly_payment: number;
+          estimated_total_paid: number;
+          id: string;
+          requested_amount_financed: number;
+          requested_down_payment: number;
+          requested_term_months: number;
+          updated_at: string;
+          vehicle_price: number;
+        };
+        Insert: {
+          application_id: string;
+          created_at?: string;
+          currency?: string;
+          down_payment_percent: number;
+          estimated_monthly_payment: number;
+          estimated_total_paid: number;
+          id?: string;
+          requested_amount_financed: number;
+          requested_down_payment: number;
+          requested_term_months: number;
+          updated_at?: string;
+          vehicle_price: number;
+        };
+        Update: {
+          application_id?: string;
+          created_at?: string;
+          currency?: string;
+          down_payment_percent?: number;
+          estimated_monthly_payment?: number;
+          estimated_total_paid?: number;
+          id?: string;
+          requested_amount_financed?: number;
+          requested_down_payment?: number;
+          requested_term_months?: number;
+          updated_at?: string;
+          vehicle_price?: number;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "application_financing_requests_application_id_fkey";
+            columns: ["application_id"];
+            isOneToOne: true;
+            referencedRelation: "applications";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       applications: {
         Row: {
           application_date: string | null;
@@ -67,36 +178,110 @@ export type Database = {
       };
       conversations: {
         Row: {
-          id: string;
-          customer_id: string;
           application_id: string | null;
+          created_at: string;
+          customer_id: string;
+          id: string;
+          last_message_at: string | null;
           ownership_plan_id: string | null;
           status: string;
-          created_at: string;
           updated_at: string;
-          last_message_at: string | null;
         };
         Insert: {
-          id?: string;
-          customer_id: string;
           application_id?: string | null;
+          created_at?: string;
+          customer_id: string;
+          id?: string;
+          last_message_at?: string | null;
           ownership_plan_id?: string | null;
           status?: string;
-          created_at?: string;
           updated_at?: string;
-          last_message_at?: string | null;
         };
         Update: {
-          id?: string;
-          customer_id?: string;
           application_id?: string | null;
+          created_at?: string;
+          customer_id?: string;
+          id?: string;
+          last_message_at?: string | null;
           ownership_plan_id?: string | null;
           status?: string;
-          created_at?: string;
           updated_at?: string;
-          last_message_at?: string | null;
         };
-        Relationships: [];
+        Relationships: [
+          {
+            foreignKeyName: "conversations_application_id_fkey";
+            columns: ["application_id"];
+            isOneToOne: false;
+            referencedRelation: "applications";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "conversations_ownership_plan_id_fkey";
+            columns: ["ownership_plan_id"];
+            isOneToOne: false;
+            referencedRelation: "ownership_plans";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      financing_terms: {
+        Row: {
+          amount_financed: number | null;
+          annual_interest_rate: number | null;
+          created_at: string;
+          currency: string;
+          down_payment: number | null;
+          first_payment_date: string | null;
+          id: string;
+          monthly_payment: number | null;
+          payment_frequency: string;
+          plan_id: string;
+          term_months: number | null;
+          total_financed_repayment: number | null;
+          updated_at: string;
+          vehicle_price: number | null;
+        };
+        Insert: {
+          amount_financed?: number | null;
+          annual_interest_rate?: number | null;
+          created_at?: string;
+          currency?: string;
+          down_payment?: number | null;
+          first_payment_date?: string | null;
+          id?: string;
+          monthly_payment?: number | null;
+          payment_frequency?: string;
+          plan_id: string;
+          term_months?: number | null;
+          total_financed_repayment?: number | null;
+          updated_at?: string;
+          vehicle_price?: number | null;
+        };
+        Update: {
+          amount_financed?: number | null;
+          annual_interest_rate?: number | null;
+          created_at?: string;
+          currency?: string;
+          down_payment?: number | null;
+          first_payment_date?: string | null;
+          id?: string;
+          monthly_payment?: number | null;
+          payment_frequency?: string;
+          plan_id?: string;
+          term_months?: number | null;
+          total_financed_repayment?: number | null;
+          updated_at?: string;
+          vehicle_price?: number | null;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "financing_terms_plan_id_fkey";
+            columns: ["plan_id"];
+            isOneToOne: true;
+            referencedRelation: "ownership_plans";
+            referencedColumns: ["id"];
+          },
+        ];
       };
       messages: {
         Row: {
@@ -177,54 +362,137 @@ export type Database = {
           },
         ];
       };
-      payments: {
+      payment_allocations: {
         Row: {
           amount: number;
-          id: string;
-          payment_date: string | null;
-          payment_status: string | null;
-          plan_id: string;
-          schedule_id: string | null;
-          provider: string | null;
-          provider_transaction_id: string | null;
-          currency: string | null;
-          metadata: Json | null;
-          created_at: string | null;
-          updated_at: string | null;
-          transaction_reference: string | null;
-          payment_type: string;
+          created_at: string;
+          payment_id: string;
+          schedule_id: string;
         };
         Insert: {
           amount: number;
-          id?: string;
-          payment_date?: string | null;
-          payment_status?: string | null;
-          plan_id: string;
-          schedule_id?: string | null;
-          provider?: string | null;
-          provider_transaction_id?: string | null;
-          currency?: string | null;
-          metadata?: Json | null;
-          created_at?: string | null;
-          updated_at?: string | null;
-          transaction_reference?: string | null;
-          payment_type?: string;
+          created_at?: string;
+          payment_id: string;
+          schedule_id: string;
         };
         Update: {
           amount?: number;
+          created_at?: string;
+          payment_id?: string;
+          schedule_id?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "payment_allocations_payment_id_fkey";
+            columns: ["payment_id"];
+            isOneToOne: false;
+            referencedRelation: "payments";
+            referencedColumns: ["id"];
+          },
+          {
+            foreignKeyName: "payment_allocations_schedule_id_fkey";
+            columns: ["schedule_id"];
+            isOneToOne: false;
+            referencedRelation: "payment_schedule";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      payment_schedule: {
+        Row: {
+          amount_due: number;
+          amount_paid: number;
+          created_at: string;
+          due_date: string;
+          financing_terms_id: string;
+          id: string;
+          installment_number: number;
+          paid_at: string | null;
+          status: string;
+          updated_at: string;
+        };
+        Insert: {
+          amount_due: number;
+          amount_paid?: number;
+          created_at?: string;
+          due_date: string;
+          financing_terms_id: string;
           id?: string;
+          installment_number: number;
+          paid_at?: string | null;
+          status?: string;
+          updated_at?: string;
+        };
+        Update: {
+          amount_due?: number;
+          amount_paid?: number;
+          created_at?: string;
+          due_date?: string;
+          financing_terms_id?: string;
+          id?: string;
+          installment_number?: number;
+          paid_at?: string | null;
+          status?: string;
+          updated_at?: string;
+        };
+        Relationships: [
+          {
+            foreignKeyName: "payment_schedule_financing_terms_id_fkey";
+            columns: ["financing_terms_id"];
+            isOneToOne: false;
+            referencedRelation: "financing_terms";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
+      payments: {
+        Row: {
+          amount: number;
+          created_at: string | null;
+          currency: string | null;
+          id: string;
+          metadata: Json | null;
+          payment_date: string | null;
+          payment_status: string | null;
+          payment_type: string;
+          plan_id: string;
+          provider: string | null;
+          provider_transaction_id: string | null;
+          schedule_id: string | null;
+          transaction_reference: string | null;
+          updated_at: string | null;
+        };
+        Insert: {
+          amount: number;
+          created_at?: string | null;
+          currency?: string | null;
+          id?: string;
+          metadata?: Json | null;
           payment_date?: string | null;
           payment_status?: string | null;
-          plan_id?: string;
-          schedule_id?: string | null;
+          payment_type?: string;
+          plan_id: string;
           provider?: string | null;
           provider_transaction_id?: string | null;
-          currency?: string | null;
-          metadata?: Json | null;
-          created_at?: string | null;
-          updated_at?: string | null;
+          schedule_id?: string | null;
           transaction_reference?: string | null;
+          updated_at?: string | null;
+        };
+        Update: {
+          amount?: number;
+          created_at?: string | null;
+          currency?: string | null;
+          id?: string;
+          metadata?: Json | null;
+          payment_date?: string | null;
+          payment_status?: string | null;
           payment_type?: string;
+          plan_id?: string;
+          provider?: string | null;
+          provider_transaction_id?: string | null;
+          schedule_id?: string | null;
+          transaction_reference?: string | null;
+          updated_at?: string | null;
         };
         Relationships: [
           {
@@ -243,136 +511,6 @@ export type Database = {
           },
         ];
       };
-      financing_terms: {
-        Row: {
-          id: string;
-          plan_id: string;
-          currency: string;
-          vehicle_price: number | null;
-          down_payment: number | null;
-          amount_financed: number | null;
-          annual_interest_rate: number | null;
-          monthly_payment: number | null;
-          term_months: number | null;
-          total_financed_repayment: number | null;
-          first_payment_date: string | null;
-          payment_frequency: string;
-          created_at: string;
-          updated_at: string;
-        };
-        Insert: {
-          id?: string;
-          plan_id: string;
-          currency?: string;
-          vehicle_price?: number | null;
-          down_payment?: number | null;
-          amount_financed?: number | null;
-          annual_interest_rate?: number | null;
-          monthly_payment?: number | null;
-          term_months?: number | null;
-          total_financed_repayment?: number | null;
-          first_payment_date?: string | null;
-          payment_frequency?: string;
-          created_at?: string;
-          updated_at?: string;
-        };
-        Update: {
-          id?: string;
-          plan_id?: string;
-          currency?: string;
-          vehicle_price?: number | null;
-          down_payment?: number | null;
-          amount_financed?: number | null;
-          annual_interest_rate?: number | null;
-          monthly_payment?: number | null;
-          term_months?: number | null;
-          total_financed_repayment?: number | null;
-          first_payment_date?: string | null;
-          payment_frequency?: string;
-          created_at?: string;
-          updated_at?: string;
-        };
-        Relationships: [
-          {
-            foreignKeyName: "financing_terms_plan_id_fkey";
-            columns: ["plan_id"];
-            isOneToOne: true;
-            referencedRelation: "ownership_plans";
-            referencedColumns: ["id"];
-          },
-        ];
-      };
-      payment_schedule: {
-        Row: {
-          id: string;
-          financing_terms_id: string;
-          installment_number: number;
-          due_date: string;
-          amount_due: number;
-          amount_paid: number;
-          status: string;
-          paid_at: string | null;
-          created_at: string;
-          updated_at: string;
-        };
-        Insert: {
-          id?: string;
-          financing_terms_id: string;
-          installment_number: number;
-          due_date: string;
-          amount_due: number;
-          amount_paid?: number;
-          status?: string;
-          paid_at?: string | null;
-          created_at?: string;
-          updated_at?: string;
-        };
-        Update: {
-          id?: string;
-          financing_terms_id?: string;
-          installment_number?: number;
-          due_date?: string;
-          amount_due?: number;
-          amount_paid?: number;
-          status?: string;
-          paid_at?: string | null;
-          created_at?: string;
-          updated_at?: string;
-        };
-        Relationships: [
-          {
-            foreignKeyName: "payment_schedule_financing_terms_id_fkey";
-            columns: ["financing_terms_id"];
-            isOneToOne: false;
-            referencedRelation: "financing_terms";
-            referencedColumns: ["id"];
-          },
-        ];
-      };
-      payment_allocations: {
-        Row: {
-          payment_id: string;
-          schedule_id: string;
-          amount: number;
-          created_at: string;
-        };
-        Insert: {
-          payment_id: string;
-          schedule_id: string;
-          amount: number;
-          created_at?: string;
-        };
-        Update: {
-          payment_id?: string;
-          schedule_id?: string;
-          amount?: number;
-          created_at?: string;
-        };
-        Relationships: [
-          { foreignKeyName: "payment_allocations_payment_id_fkey"; columns: ["payment_id"]; isOneToOne: false; referencedRelation: "payments"; referencedColumns: ["id"]; },
-          { foreignKeyName: "payment_allocations_schedule_id_fkey"; columns: ["schedule_id"]; isOneToOne: false; referencedRelation: "payment_schedule"; referencedColumns: ["id"]; },
-        ];
-      };
       profiles: {
         Row: {
           address: string | null;
@@ -381,11 +519,6 @@ export type Database = {
           created_at: string | null;
           currency: string | null;
           date_of_birth: string | null;
-          // NOTE: added by hand alongside drivers_license etc. above —
-          // see supabase/migrations/20260812010000_settings_and_payments_access.sql.
-          // This file couldn't be regenerated from a live project in
-          // this environment; run `supabase gen types typescript` after
-          // applying that migration to confirm this matches.
           deactivated_at: string | null;
           drivers_license: string | null;
           drivers_license_back: string | null;
@@ -461,6 +594,27 @@ export type Database = {
           state?: string | null;
           timezone?: string | null;
           updated_at?: string | null;
+          user_id?: string;
+        };
+        Relationships: [];
+      };
+      rate_limit_hits: {
+        Row: {
+          action: string;
+          created_at: string;
+          id: number;
+          user_id: string;
+        };
+        Insert: {
+          action: string;
+          created_at?: string;
+          id?: never;
+          user_id: string;
+        };
+        Update: {
+          action?: string;
+          created_at?: string;
+          id?: never;
           user_id?: string;
         };
         Relationships: [];
@@ -606,99 +760,95 @@ export type Database = {
       [_ in never]: never;
     };
     Functions: {
-      // NOTE: check_rate_limit was added by hand (supabase/migrations/
-      // 20260812000000_rate_limiting.sql) because this file couldn't be
-      // regenerated against the live project from this environment. Run
-      // `supabase gen types typescript` after applying that migration to
-      // confirm this matches, or leave as-is — the shape matches the
-      // migration's function signature exactly.
-      check_rate_limit: {
-        Args: { p_action: string; p_max_hits: number; p_window_seconds: number };
-        Returns: boolean;
-      };
       activate_ownership_plan: {
         Args: { p_plan_id: string };
         Returns: boolean;
       };
+      check_rate_limit: {
+        Args: {
+          p_action: string;
+          p_max_hits: number;
+          p_window_seconds: number;
+        };
+        Returns: boolean;
+      };
       create_draft_ownership_plan: {
         Args: {
+          p_annual_interest_rate?: number;
           p_application_id: string;
           p_currency: string;
-          p_vehicle_price: number;
           p_down_payment: number;
+          p_first_payment_date: string;
           p_monthly_payment: number;
+          p_payment_frequency?: string;
           p_term_months: number;
           p_total_financed_repayment: number;
-          p_first_payment_date: string;
-          p_payment_frequency?: string;
-          p_annual_interest_rate?: number | null;
+          p_vehicle_price: number;
         };
         Returns: string;
       };
       get_or_create_conversation: {
-        Args: { p_application_id?: string | null; p_ownership_plan_id?: string | null };
-        Returns: string | null;
+        Args: { p_application_id?: string; p_ownership_plan_id?: string };
+        Returns: string;
       };
+      is_admin: { Args: never; Returns: boolean };
       is_valid_customer_conversation: {
-        Args: { p_customer_id: string; p_application_id?: string | null; p_ownership_plan_id?: string | null };
-        Returns: boolean;
-      };
-      set_conversation_status: {
-        Args: { p_conversation_id: string; p_status: string };
+        Args: {
+          p_application_id: string;
+          p_customer_id: string;
+          p_ownership_plan_id: string;
+        };
         Returns: boolean;
       };
       mark_conversation_read: {
         Args: { p_conversation_id: string };
         Returns: boolean;
       };
-      is_admin: {
-        Args: Record<PropertyKey, never>;
-        Returns: boolean;
-      };
-      prepare_ownership_plan: {
-        Args: { p_plan_id: string };
-        Returns: boolean;
-      };
+      prepare_ownership_plan: { Args: { p_plan_id: string }; Returns: boolean };
       record_manual_payment: {
         Args: {
-          p_plan_id: string;
-          p_payment_type: string;
           p_amount: number;
           p_payment_date: string;
+          p_payment_type: string;
+          p_plan_id: string;
+          p_schedule_id?: string;
           p_transaction_reference: string;
-          p_schedule_id?: string | null;
         };
         Returns: string;
       };
-      respond_to_ownership_plan: {
-        Args: {
-          p_decision: string;
-          p_plan_id: string;
-        };
+      record_payment_allocation: {
+        Args: { p_amount: number; p_payment_id: string; p_schedule_id: string };
         Returns: boolean;
       };
-      record_payment_allocation: {
-        Args: {
-          p_amount: number;
-          p_payment_id: string;
-          p_schedule_id: string;
-        };
+      respond_to_ownership_plan: {
+        Args: { p_decision: string; p_plan_id: string };
         Returns: boolean;
       };
       review_application: {
         Args: {
           p_application_id: string;
           p_decision: string;
-          p_rejection_reason?: string | null;
+          p_rejection_reason?: string;
         };
         Returns: boolean;
       };
       review_identity_verification: {
-        Args: {
-          p_user_id: string;
-          p_verified: boolean;
-        };
+        Args: { p_user_id: string; p_verified: boolean };
         Returns: boolean;
+      };
+      set_conversation_status: {
+        Args: { p_conversation_id: string; p_status: string };
+        Returns: boolean;
+      };
+      write_admin_audit_log: {
+        Args: {
+          p_action: string;
+          p_after?: Json;
+          p_before?: Json;
+          p_entity_id: string;
+          p_entity_type: string;
+        };
+        Returns: undefined;
       };
     };
     Enums: {
@@ -828,6 +978,9 @@ export type CompositeTypes<
     : never;
 
 export const Constants = {
+  graphql_public: {
+    Enums: {},
+  },
   public: {
     Enums: {},
   },

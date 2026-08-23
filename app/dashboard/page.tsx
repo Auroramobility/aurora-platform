@@ -1,6 +1,8 @@
 import { redirect } from "next/navigation";
+
 import { getOwnershipJourneyForUser } from "@/features/applications/lib/get-ownership-journey";
 import { createClient } from "@/lib/supabase/server";
+
 import { DashboardShell } from "@/components/dashboard/dashboard-shell";
 import { StatCard } from "@/components/dashboard/stat-card";
 import { QuickActions } from "@/components/dashboard/quick-actions";
@@ -20,19 +22,34 @@ export default async function DashboardPage() {
 
   const { data: profile } = await supabase
     .from("profiles")
-    .select("full_name, phone, country, state, address, city, postal_code, date_of_birth, employment_status, monthly_income, drivers_license, profile_photo_url")
+    .select(
+      "full_name, phone, country, state, address, city, postal_code, date_of_birth, employment_status, monthly_income, drivers_license, profile_photo_url",
+    )
     .eq("user_id", user.id)
     .maybeSingle();
 
   const journey = await getOwnershipJourneyForUser();
 
-  const p = profile;
-  const [applicationsResult, savedVehiclesResult, messagesResult] = await Promise.all([
-    supabase.from("applications").select("id", { count: "exact", head: true }).eq("user_id", user.id),
-    supabase.from("saved_vehicles").select("id", { count: "exact", head: true }).eq("user_id", user.id),
-    supabase.from("messages").select("id", { count: "exact", head: true }).eq("sender_role", "admin").is("customer_read_at", null),
-  ]);
+  const [applicationsResult, savedVehiclesResult, messagesResult] =
+    await Promise.all([
+      supabase
+        .from("applications")
+        .select("id", { count: "exact", head: true })
+        .eq("user_id", user.id),
 
+      supabase
+        .from("saved_vehicles")
+        .select("id", { count: "exact", head: true })
+        .eq("user_id", user.id),
+
+      supabase
+        .from("messages")
+        .select("id", { count: "exact", head: true })
+        .eq("sender_role", "admin")
+        .is("customer_read_at", null),
+    ]);
+
+  const p = profile;
 
   const fields = [
     p?.full_name,
@@ -57,37 +74,52 @@ export default async function DashboardPage() {
 
   return (
     <DashboardShell title="Dashboard" email={user.email ?? ""}>
-      <WelcomeHero firstName={firstName} />
+      <div className="space-y-8">
+        <WelcomeHero firstName={firstName} />
 
-      <OwnershipJourney state={journey} />
+        <OwnershipJourney state={journey} />
 
-      <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
-        <StatCard
-          title="Applications"
-          value={applicationsResult.count ?? 0}
-          subtitle="Applications submitted"
-        />
+        <section>
+          <div className="mb-5">
+            <p className="eyebrow">Your Aurora</p>
+            <h2 className="mt-2 text-2xl font-bold tracking-tight">
+              Account Overview
+            </h2>
+          </div>
 
-        <StatCard
-          title="Saved Vehicles"
-          value={savedVehiclesResult.count ?? 0}
-          subtitle="Vehicles you're watching"
-        />
+          <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-4">
+            <StatCard
+              title="Applications"
+              value={applicationsResult.count ?? 0}
+              subtitle="Applications submitted"
+              tone="purple"
+            />
 
-        <StatCard
-          title="Messages"
-          value={messagesResult.count ?? 0}
-          subtitle="Messages"
-        />
+            <StatCard
+              title="Saved Vehicles"
+              value={savedVehiclesResult.count ?? 0}
+              subtitle="Vehicles you're watching"
+              tone="blue"
+            />
 
-        <StatCard
-          title="Profile"
-          value={`${completion}%`}
-          subtitle="Completion"
-        />
+            <StatCard
+              title="Messages"
+              value={messagesResult.count ?? 0}
+              subtitle="Messages"
+              tone="amber"
+            />
+
+            <StatCard
+              title="Profile"
+              value={`${completion}%`}
+              subtitle="Completion"
+              tone="green"
+            />
+          </div>
+        </section>
+
+        <QuickActions />
       </div>
-
-      <QuickActions />
     </DashboardShell>
   );
 }

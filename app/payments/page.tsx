@@ -13,7 +13,9 @@ import type { OwnershipPlanStatus } from "@/features/ownership/types/ownership-p
 function money(value: number | null, currency = "USD") {
   return value == null
     ? "—"
-    : new Intl.NumberFormat("en-US", { style: "currency", currency }).format(value);
+    : new Intl.NumberFormat("en-US", { style: "currency", currency }).format(
+        value,
+      );
 }
 
 function statusVariant(status: string) {
@@ -46,7 +48,12 @@ export default async function PaymentsPage() {
   );
 
   return (
-    <DashboardShell title="Payments" email={user.email ?? ""}>
+    <DashboardShell
+      title="Aurora Support"
+      email={user.email ?? ""}
+      backHref="/dashboard"
+      backLabel="Dashboard"
+    >
       <p className="text-muted-foreground">
         Financing terms and payment history for your ownership plans.
       </p>
@@ -56,9 +63,8 @@ export default async function PaymentsPage() {
           <CreditCard className="h-10 w-10 text-muted-foreground" />
           <p className="mt-4 font-semibold">No ownership plan yet</p>
           <p className="mt-2 max-w-sm text-sm text-muted-foreground">
-            Once you have an approved application and an active ownership
-            plan, your financing terms and payment history will show up
-            here.
+            Once you have an approved application and an active ownership plan,
+            your financing terms and payment history will show up here.
           </p>
           <Link
             href="/vehicles"

@@ -1,22 +1,23 @@
 import type { Metadata, Viewport } from "next";
-import { Space_Grotesk, Inter } from "next/font/google";
+import { Cormorant_Garamond, DM_Sans } from "next/font/google";
+import Script from "next/script";
 import "./globals.css";
 
-const fontDisplay = Space_Grotesk({
+const fontDisplay = Cormorant_Garamond({
   subsets: ["latin"],
+  weight: ["300", "400", "600", "700"],
+  style: ["normal", "italic"],
   variable: "--font-display",
   display: "swap",
 });
 
-const fontSans = Inter({
+const fontSans = DM_Sans({
   subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700"],
   variable: "--font-sans",
   display: "swap",
 });
 
-// Same pattern as lib/auth/signup.ts and app/login/page.tsx's OAuth
-// redirect — falls back to localhost in dev, must be set in
-// staging/production (see .env.example).
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
 
 export const metadata: Metadata = {
@@ -52,8 +53,17 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className={`${fontDisplay.variable} ${fontSans.variable}`}>
-      <body className="min-h-dvh font-sans">{children}</body>
+    <html
+      lang="en"
+      className={`${fontDisplay.variable} ${fontSans.variable}`}
+      suppressHydrationWarning
+    >
+      <body className="min-h-dvh font-sans">
+        <Script id="aurora-theme-init" strategy="beforeInteractive">
+          {`(function(){try{var t=localStorage.getItem("aurora-theme");if(t==="dark"||(!t&&window.matchMedia("(prefers-color-scheme: dark)").matches)){document.documentElement.classList.add("dark")}else{document.documentElement.classList.remove("dark")}}catch(e){}})()`}
+        </Script>
+        {children}
+      </body>
     </html>
   );
 }

@@ -1,91 +1,101 @@
 "use client";
 
-import * as React from "react";
+import { useState } from "react";
 import Link from "next/link";
-import { Menu, X } from "lucide-react";
+import { Menu, X, ArrowRight, Zap } from "lucide-react";
 
-import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import { ThemeToggle } from "@/components/theme/theme-toggle";
 
-type NavLink = { name: string; href: string };
+type MobileNavLink = {
+  name: string;
+  href: string;
+};
 
-type Props = {
-  links: NavLink[];
+type MobileNavProps = {
+  links: MobileNavLink[];
   isAuthenticated: boolean;
 };
 
-export function MobileNav({ links, isAuthenticated }: Props) {
-  const [isOpen, setIsOpen] = React.useState(false);
+export function MobileNav({ links, isAuthenticated }: MobileNavProps) {
+  const [open, setOpen] = useState(false);
 
-  // Close the mobile menu when the viewport grows back to desktop size.
-  React.useEffect(() => {
-    const mediaQuery = window.matchMedia("(min-width: 768px)");
-    const handleChange = (event: MediaQueryListEvent) => {
-      if (event.matches) setIsOpen(false);
-    };
-    mediaQuery.addEventListener("change", handleChange);
-    return () => mediaQuery.removeEventListener("change", handleChange);
-  }, []);
+  function closeMenu() {
+    setOpen(false);
+  }
 
   return (
     <div className="md:hidden">
-      <button
-        type="button"
-        className="inline-flex h-10 w-10 items-center justify-center rounded-full text-foreground"
-        aria-label={isOpen ? "Close menu" : "Open menu"}
-        aria-expanded={isOpen}
-        aria-controls="mobile-menu"
-        onClick={() => setIsOpen((prev) => !prev)}
+      <Button
+        variant="ghost"
+        size="icon"
+        aria-label={open ? "Close navigation" : "Open navigation"}
+        aria-expanded={open}
+        onClick={() => setOpen((current) => !current)}
       >
-        {isOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
-      </button>
+        {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+      </Button>
 
-      <div
-        id="mobile-menu"
-        className={cn(
-          "fixed inset-x-0 top-16 grid overflow-hidden border-b border-border bg-background transition-[grid-template-rows] duration-300 ease-out",
-          isOpen ? "grid-rows-[1fr]" : "grid-rows-[0fr]",
-        )}
-      >
-        <div className="overflow-hidden">
-          <ul className="flex flex-col gap-1 px-4 py-4 sm:px-6">
-            {links.map((link) => (
-              <li key={link.href}>
+      {open ? (
+        <div className="fixed inset-x-0 top-16 z-50 border-b border-border bg-background/95 shadow-lg backdrop-blur-xl">
+          <div className="mx-auto max-w-7xl px-4 py-6 sm:px-6">
+            <nav className="flex flex-col gap-2" aria-label="Mobile navigation">
+              {links.map((link) => (
                 <Link
+                  key={link.name}
                   href={link.href}
-                  onClick={() => setIsOpen(false)}
-                  className="block rounded-md px-2 py-2.5 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                  onClick={closeMenu}
+                  className="rounded-xl px-4 py-3 text-base font-medium text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
                 >
                   {link.name}
                 </Link>
-              </li>
-            ))}
+              ))}
+            </nav>
 
-            <li className="pt-2">
+            <div className="mt-5 flex items-center justify-between border-t border-border pt-5">
+              <ThemeToggle />
+
               {isAuthenticated ? (
-                <Button size="sm" className="w-full" asChild>
-                  <Link href="/dashboard" onClick={() => setIsOpen(false)}>
+                <Button
+                  className="aurora-gradient border-0 font-semibold text-background"
+                  asChild
+                >
+                  <Link href="/dashboard" onClick={closeMenu}>
                     Dashboard
+                    <ArrowRight className="ml-2 h-4 w-4" />
                   </Link>
                 </Button>
               ) : (
-                <div className="flex flex-col gap-2">
-                  <Button size="sm" variant="ghost" className="w-full" asChild>
-                    <Link href="/login" onClick={() => setIsOpen(false)}>
+                <div className="flex items-center gap-2">
+                  <Button variant="ghost" asChild>
+                    <Link href="/login" onClick={closeMenu}>
                       Sign In
                     </Link>
                   </Button>
-                  <Button size="sm" className="w-full" asChild>
-                    <Link href="/signup" onClick={() => setIsOpen(false)}>
-                      Get Started
+
+                  <Button
+                    className="aurora-gradient border-0 font-semibold text-background"
+                    asChild
+                  >
+                    <Link href="/vehicles" onClick={closeMenu}>
+                      Explore Vehicles
+                      <ArrowRight className="ml-2 h-4 w-4" />
                     </Link>
                   </Button>
                 </div>
               )}
-            </li>
-          </ul>
+            </div>
+
+            <div className="mt-6 flex items-center gap-2 text-xs text-muted-foreground">
+              <div className="aurora-gradient flex h-6 w-6 items-center justify-center rounded-md">
+                <Zap className="h-3 w-3 text-background" />
+              </div>
+
+              <span>Aurora Mobility</span>
+            </div>
+          </div>
         </div>
-      </div>
+      ) : null}
     </div>
   );
 }

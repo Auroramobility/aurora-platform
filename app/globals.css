@@ -4,38 +4,111 @@
 
 @layer base {
   :root {
-    /* Aurora Mobility — deep-space EV palette.
-       HSL triplets (no hsl() wrapper) so Tailwind opacity modifiers work. */
+    /* ─────────────────────────────────────────────
+       CORE
+    ───────────────────────────────────────────── */
 
-    --background:    216 42%  5%;
-    --foreground:    210 24% 96%;
+    --background: 220 25% 97%;
+    --foreground: 222 28% 10%;
 
-    --surface:       216 36%  8%;
-    --surface-foreground: 210 24% 96%;
+    --surface: 0 0% 100%;
+    --surface-foreground: 222 28% 10%;
 
-    --muted:         216 20% 15%;
-    --muted-foreground: 213 14% 60%;
+    --muted: 220 18% 94%;
+    --muted-foreground: 220 12% 46%;
 
-    /* Electric teal — primary action, CTAs, links */
-    --primary:       174 72% 48%;
-    --primary-foreground: 216 42% 5%;
+    /* Aurora teal */
+    --primary: 174 72% 36%;
+    --primary-foreground: 0 0% 100%;
 
-    --secondary:     216 28% 13%;
-    --secondary-foreground: 210 24% 96%;
+    --secondary: 220 18% 94%;
+    --secondary-foreground: 222 28% 10%;
 
-    /* Violet — accent, highlights, badges */
-    --accent:        252 70% 65%;
-    --accent-foreground: 216 42% 5%;
+    /* Aurora violet */
+    --accent: 252 70% 58%;
+    --accent-foreground: 0 0% 100%;
 
-    /* Destructive */
-    --destructive:   0 72% 58%;
-    --destructive-foreground: 210 24% 96%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
 
-    --border:        216 22% 16%;
-    --input:         216 22% 16%;
-    --ring:          174 72% 48%;
+    --border: 220 16% 87%;
+    --input: 220 16% 87%;
+    --ring: 174 72% 36%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222 28% 10%;
 
     --radius: 0.875rem;
+
+    /* ─────────────────────────────────────────────
+       SEMANTIC COLORS
+    ───────────────────────────────────────────── */
+
+    --success: 151 65% 38%;
+    --success-foreground: 0 0% 100%;
+
+    --info: 214 82% 52%;
+    --info-foreground: 0 0% 100%;
+
+    --warning: 40 92% 50%;
+    --warning-foreground: 32 50% 12%;
+
+    --danger: 0 72% 51%;
+    --danger-foreground: 0 0% 100%;
+
+    --violet: 262 72% 58%;
+    --violet-foreground: 0 0% 100%;
+
+    --pink: 330 72% 58%;
+    --pink-foreground: 0 0% 100%;
+  }
+
+  .dark {
+    --background: 216 42% 5%;
+    --foreground: 210 24% 96%;
+
+    --surface: 216 36% 8%;
+    --surface-foreground: 210 24% 96%;
+
+    --muted: 216 20% 15%;
+    --muted-foreground: 213 14% 60%;
+
+    --primary: 174 72% 48%;
+    --primary-foreground: 216 42% 5%;
+
+    --secondary: 216 28% 13%;
+    --secondary-foreground: 210 24% 96%;
+
+    --accent: 252 70% 65%;
+    --accent-foreground: 216 42% 5%;
+
+    --destructive: 0 72% 58%;
+    --destructive-foreground: 210 24% 96%;
+
+    --border: 216 22% 16%;
+    --input: 216 22% 16%;
+    --ring: 174 72% 48%;
+
+    --card: 216 36% 8%;
+    --card-foreground: 210 24% 96%;
+
+    --success: 151 65% 48%;
+    --success-foreground: 216 42% 5%;
+
+    --info: 214 82% 62%;
+    --info-foreground: 216 42% 5%;
+
+    --warning: 40 92% 58%;
+    --warning-foreground: 216 42% 5%;
+
+    --danger: 0 72% 62%;
+    --danger-foreground: 216 42% 5%;
+
+    --violet: 262 72% 68%;
+    --violet-foreground: 216 42% 5%;
+
+    --pink: 330 72% 68%;
+    --pink-foreground: 216 42% 5%;
   }
 }
 
@@ -65,77 +138,199 @@
   }
 }
 
-/* ─── Aurora gradient utilities ──────────────────────────────────────────── */
-@layer utilities {
+/* ─────────────────────────────────────────────
+   AURORA BRAND SYSTEM
+───────────────────────────────────────────── */
 
-  /* Signature electric gradient: teal → violet */
+@layer utilities {
   .aurora-gradient {
     background: linear-gradient(
       135deg,
       hsl(174 72% 48%) 0%,
-      hsl(220 80% 60%) 50%,
+      hsl(214 82% 58%) 48%,
       hsl(252 70% 65%) 100%
     );
   }
 
-  /* Text version — clip to text */
   .aurora-gradient-text {
     background: linear-gradient(
       135deg,
-      hsl(174 72% 58%) 0%,
-      hsl(220 80% 68%) 50%,
-      hsl(252 70% 72%) 100%
+      hsl(174 72% 42%) 0%,
+      hsl(214 82% 56%) 48%,
+      hsl(252 70% 62%) 100%
     );
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
 
-  /* Glowing border effect */
   .aurora-border {
     border: 1px solid transparent;
     background:
       linear-gradient(hsl(var(--surface)), hsl(var(--surface))) padding-box,
-      linear-gradient(135deg, hsl(174 72% 48% / 0.6), hsl(252 70% 65% / 0.6)) border-box;
+      linear-gradient(135deg, hsl(174 72% 48% / 0.6), hsl(252 70% 65% / 0.6))
+        border-box;
   }
 
-  /* Card glow on hover */
   .aurora-card {
     position: relative;
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    transition:
+      transform 0.2s ease,
+      box-shadow 0.2s ease,
+      border-color 0.2s ease;
   }
 
   .aurora-card:hover {
     transform: translateY(-2px);
     box-shadow:
-      0 0 0 1px hsl(174 72% 48% / 0.2),
-      0 8px 32px hsl(174 72% 48% / 0.12),
-      0 2px 8px hsl(0 0% 0% / 0.4);
+      0 0 0 1px hsl(174 72% 48% / 0.15),
+      0 12px 35px hsl(220 30% 10% / 0.08);
   }
 
-  /* Ambient glow blob — used in hero sections */
   .aurora-glow-teal {
-    background: radial-gradient(ellipse at center, hsl(174 72% 48% / 0.15) 0%, transparent 70%);
+    background: radial-gradient(
+      ellipse at center,
+      hsl(174 72% 48% / 0.13) 0%,
+      transparent 70%
+    );
   }
 
   .aurora-glow-violet {
-    background: radial-gradient(ellipse at center, hsl(252 70% 65% / 0.12) 0%, transparent 70%);
+    background: radial-gradient(
+      ellipse at center,
+      hsl(252 70% 65% / 0.11) 0%,
+      transparent 70%
+    );
   }
 
-  /* Stat / badge highlight */
-  .aurora-stat {
-    background: linear-gradient(135deg, hsl(174 72% 48% / 0.08), hsl(252 70% 65% / 0.08));
-    border: 1px solid hsl(174 72% 48% / 0.2);
-  }
-
-  /* Section divider glow line */
   .aurora-divider {
     height: 1px;
-    background: linear-gradient(90deg, transparent, hsl(174 72% 48% / 0.4), hsl(252 70% 65% / 0.4), transparent);
+    background: linear-gradient(
+      90deg,
+      transparent,
+      hsl(174 72% 48% / 0.35),
+      hsl(214 82% 58% / 0.25),
+      hsl(252 70% 65% / 0.35),
+      transparent
+    );
+  }
+
+  /* ─────────────────────────────────────────────
+     SEMANTIC CARD COLORS
+  ───────────────────────────────────────────── */
+
+  .aurora-success {
+    background: hsl(var(--success) / 0.08);
+    border-color: hsl(var(--success) / 0.2);
+  }
+
+  .aurora-info {
+    background: hsl(var(--info) / 0.08);
+    border-color: hsl(var(--info) / 0.2);
+  }
+
+  .aurora-warning {
+    background: hsl(var(--warning) / 0.1);
+    border-color: hsl(var(--warning) / 0.25);
+  }
+
+  .aurora-danger {
+    background: hsl(var(--danger) / 0.08);
+    border-color: hsl(var(--danger) / 0.2);
+  }
+
+  .aurora-violet {
+    background: hsl(var(--violet) / 0.08);
+    border-color: hsl(var(--violet) / 0.2);
+  }
+
+  .aurora-pink {
+    background: hsl(var(--pink) / 0.08);
+    border-color: hsl(var(--pink) / 0.2);
+  }
+
+  /* Stronger section backgrounds */
+
+  .aurora-section-teal {
+    background: linear-gradient(
+      135deg,
+      hsl(174 72% 48% / 0.11),
+      hsl(214 82% 58% / 0.05)
+    );
+  }
+
+  .aurora-section-blue {
+    background: linear-gradient(
+      135deg,
+      hsl(214 82% 52% / 0.11),
+      hsl(252 70% 58% / 0.05)
+    );
+  }
+
+  .aurora-section-purple {
+    background: linear-gradient(
+      135deg,
+      hsl(262 72% 58% / 0.11),
+      hsl(330 72% 58% / 0.05)
+    );
+  }
+
+  .aurora-section-green {
+    background: linear-gradient(
+      135deg,
+      hsl(151 65% 38% / 0.11),
+      hsl(174 72% 48% / 0.05)
+    );
+  }
+
+  .aurora-section-amber {
+    background: linear-gradient(
+      135deg,
+      hsl(40 92% 50% / 0.13),
+      hsl(30 90% 55% / 0.05)
+    );
+  }
+
+  /* ─────────────────────────────────────────────
+     STAT
+  ───────────────────────────────────────────── */
+
+  .aurora-stat {
+    background: hsl(174 72% 48% / 0.07);
+    border: 1px solid hsl(174 72% 48% / 0.18);
+  }
+
+  /* ─────────────────────────────────────────────
+     BACKGROUND DETAIL
+  ───────────────────────────────────────────── */
+
+  .aurora-grid-overlay {
+    background-image:
+      linear-gradient(rgba(0, 0, 0, 0.025) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(0, 0, 0, 0.025) 1px, transparent 1px);
+    background-size: 72px 72px;
+  }
+
+  .dark .aurora-grid-overlay {
+    background-image:
+      linear-gradient(rgba(255, 255, 255, 0.013) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.013) 1px, transparent 1px);
+  }
+
+  .eyebrow {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: hsl(var(--primary));
+    font-family: "DM Sans", sans-serif;
   }
 }
 
-/* ─── Animations ─────────────────────────────────────────────────────────── */
+/* ─────────────────────────────────────────────
+   ANIMATIONS
+───────────────────────────────────────────── */
+
 @layer utilities {
   .animate-fade-up {
     animation: fade-up 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
@@ -151,17 +346,32 @@
 }
 
 @keyframes aurora-drift {
-  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
-  50%       { transform: translate3d(2%, -3%, 0) scale(1.05); }
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(1);
+  }
+
+  50% {
+    transform: translate3d(2%, -3%, 0) scale(1.05);
+  }
 }
 
 @keyframes fade-up {
-  from { opacity: 0; transform: translateY(14px); }
-  to   { opacity: 1; transform: translateY(0); }
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
+  *,
+  *::before,
+  *::after {
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;

@@ -1,7 +1,6 @@
-
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { MessageSquare, ArrowRight } from "lucide-react";
+import { ArrowLeft, ArrowRight, MessageSquare } from "lucide-react";
 
 import { requireAdmin } from "@/features/admin/lib/authorization";
 import {
@@ -10,7 +9,6 @@ import {
   markConversationRead,
 } from "@/features/messaging/lib/get-conversations";
 
-import { MessageComposer } from "@/components/messaging/message-composer";
 import { Button } from "@/components/ui/button";
 import { MessageThread } from "@/features/messaging/components/message-thread";
 import { ConversationStatusControl } from "@/components/messaging/conversation-status-control";
@@ -21,9 +19,7 @@ type Props = {
   }>;
 };
 
-export default async function AdminMessagesPage({
-  searchParams,
-}: Props) {
+export default async function AdminMessagesPage({ searchParams }: Props) {
   const { supabase, user, isAdmin } = await requireAdmin();
 
   if (!user) {
@@ -38,18 +34,24 @@ export default async function AdminMessagesPage({
 
   const params = searchParams ? await searchParams : {};
 
+  /*
+   * Do not automatically open the first conversation.
+   *
+   * /admin/messages
+   *     = customer list
+   *
+   * /admin/messages?conversation=...
+   *     = selected customer's conversation
+   */
   const selectedId =
     params.conversation &&
     conversations.some((item) => item.id === params.conversation)
       ? params.conversation
-      : conversations[0]?.id;
+      : undefined;
 
-  const selected =
-    conversations.find((item) => item.id === selectedId) ?? null;
+  const selected = conversations.find((item) => item.id === selectedId) ?? null;
 
-  const messages = selected
-    ? await getConversationMessages(selected.id)
-    : [];
+  const messages = selected ? await getConversationMessages(selected.id) : [];
 
   if (selected) {
     await markConversationRead(selected.id);
@@ -62,11 +64,56 @@ export default async function AdminMessagesPage({
   const refreshedSelected =
     refreshedConversations.find((item) => item.id === selectedId) ?? null;
 
+  /*
+   * One customer = one entry in the customer list.
+   *
+   * We do not delete or merge database records.
+   * This only controls how the admin inbox is displayed.
+   */
+  const customerConversationMap = new Map<
+    string,
+    (typeof refreshedConversations)[number]
+  >();
+
+  for (const conversation of refreshedConversations) {
+    const existing = customerConversationMap.get(conversation.customerId);
+
+    if (!existing) {
+      customerConversationMap.set(conversation.customerId, conversation);
+      continue;
+    }
+
+    /*
+     * Prefer an open conversation over a closed historical
+     * conversation.
+     */
+    if (existing.status !== "open" && conversation.status === "open") {
+      customerConversationMap.set(conversation.customerId, conversation);
+      continue;
+    }
+
+    /*
+     * If both have the same status, use the most recently
+     * active conversation.
+     */
+    const existingActivity = new Date(
+      existing.lastMessageAt ?? existing.updatedAt,
+    ).getTime();
+
+    const conversationActivity = new Date(
+      conversation.lastMessageAt ?? conversation.updatedAt,
+    ).getTime();
+
+    if (conversationActivity > existingActivity) {
+      customerConversationMap.set(conversation.customerId, conversation);
+    }
+  }
+
+  const customerConversations = Array.from(customerConversationMap.values());
+
   const customerIds = [
     ...new Set(
-      refreshedConversations.map(
-        (conversation) => conversation.customerId,
-      ),
+      refreshedConversations.map((conversation) => conversation.customerId),
     ),
   ];
 
@@ -78,46 +125,7 @@ export default async function AdminMessagesPage({
     : { data: [] };
 
   const profileMap = new Map(
-    (profiles ?? []).map((profile) => [
-      profile.user_id,
-      profile,
-    ]),
-  );
-
-  const applicationIds = refreshedConversations
-    .map((item) => item.applicationId)
-    .filter(Boolean) as string[];
-
-  const { data: applications } = applicationIds.length
-    ? await supabase
-        .from("applications")
-        .select("id, vehicle_id, status")
-        .in("id", applicationIds)
-    : { data: [] };
-
-  const vehicleIds = (applications ?? []).map(
-    (item) => item.vehicle_id,
-  );
-
-  const { data: vehicles } = vehicleIds.length
-    ? await supabase
-        .from("vehicles")
-        .select("id, brand, model, year")
-        .in("id", vehicleIds)
-    : { data: [] };
-
-  const vehicleMap = new Map(
-    (vehicles ?? []).map((vehicle) => [
-      vehicle.id,
-      vehicle,
-    ]),
-  );
-
-  const appMap = new Map(
-    (applications ?? []).map((application) => [
-      application.id,
-      application,
-    ]),
+    (profiles ?? []).map((profile) => [profile.user_id, profile]),
   );
 
   return (
@@ -129,14 +137,11 @@ export default async function AdminMessagesPage({
               Aurora Operations
             </p>
 
-            <h1 className="mt-2 text-3xl font-bold">
-              Customer messages
-            </h1>
+            <h1 className="mt-2 text-3xl font-bold">Customer messages</h1>
 
             <p className="mt-2 max-w-2xl text-muted-foreground">
-              Communicate with customers without using the
-              conversation itself as authoritative business or
-              payment state.
+              Communicate with customers without using the conversation itself
+              as authoritative business or payment state.
             </p>
           </div>
 
@@ -145,96 +150,85 @@ export default async function AdminMessagesPage({
           </Button>
         </header>
 
-        <div className="grid min-h-[620px] overflow-hidden rounded-3xl border bg-card lg:grid-cols-[340px_1fr]">
-          <aside className="border-b border-border lg:border-b-0 lg:border-r">
-            <div className="p-5">
-              <h2 className="font-semibold">
-                Customer threads
-              </h2>
+        {!selected ? (
+          /* ─────────────────────────────────────────────
+             CUSTOMER LIST
+             ───────────────────────────────────────────── */
+          <div className="bg-card overflow-hidden rounded-3xl border">
+            <div className="border-b border-border p-5">
+              <h2 className="font-semibold">Customers</h2>
+
+              <p className="mt-1 text-sm text-muted-foreground">
+                Select a customer to open their conversation.
+              </p>
             </div>
 
             <div className="divide-y divide-border">
-              {refreshedConversations.length === 0 ? (
-                <div className="p-5 text-sm text-muted-foreground">
+              {customerConversations.length === 0 ? (
+                <div className="p-8 text-sm text-muted-foreground">
                   No customer conversations yet.
                 </div>
               ) : (
-                refreshedConversations.map((conversation) => {
-                  const profile = profileMap.get(
-                    conversation.customerId,
-                  );
-
-                  const app = conversation.applicationId
-                    ? appMap.get(
-                        conversation.applicationId,
-                      )
-                    : undefined;
-
-                  const vehicle = app
-                    ? vehicleMap.get(app.vehicle_id)
-                    : undefined;
+                customerConversations.map((conversation) => {
+                  const profile = profileMap.get(conversation.customerId);
 
                   return (
                     <Link
-                      key={conversation.id}
+                      key={conversation.customerId}
                       href={`/admin/messages?conversation=${conversation.id}`}
-                      className={`block p-5 transition hover:bg-muted/40 ${
-                        conversation.id === selectedId
-                          ? "bg-muted/50"
-                          : ""
-                      }`}
+                      className="flex items-center justify-between gap-4 p-5 transition hover:bg-muted/40"
                     >
-                      <div className="flex items-start justify-between gap-3">
-                        <div>
-                          <p className="font-medium">
-                            {profile?.full_name ||
-                              "Customer"}
-                          </p>
-
-                          <p className="mt-1 text-xs text-muted-foreground">
-                            {vehicle
-                              ? `${vehicle.brand} ${vehicle.model}`
-                              : "General support"}
-                          </p>
-                        </div>
-
-                        <ArrowRight className="h-4 w-4 text-muted-foreground" />
-                      </div>
-
-                      <div className="mt-2 flex items-center gap-2">
-                        <p className="text-xs capitalize text-muted-foreground">
-                          {conversation.status}
+                      <div className="min-w-0">
+                        <p className="font-medium">
+                          {profile?.full_name || "Customer"}
                         </p>
 
-                        {conversation.unreadCount > 0 ? (
-                          <span className="rounded-full bg-primary px-2 py-0.5 text-[10px] font-semibold text-primary-foreground">
-                            {conversation.unreadCount} unread
+                        <div className="mt-1 flex items-center gap-2">
+                          <span className="text-xs capitalize text-muted-foreground">
+                            {conversation.status}
                           </span>
-                        ) : null}
+
+                          {conversation.unreadCount > 0 ? (
+                            <span className="rounded-full bg-primary px-2 py-0.5 text-[10px] font-semibold text-primary-foreground">
+                              {conversation.unreadCount} unread
+                            </span>
+                          ) : null}
+                        </div>
                       </div>
+
+                      <ArrowRight className="h-4 w-4 shrink-0 text-muted-foreground" />
                     </Link>
                   );
                 })
               )}
             </div>
-          </aside>
+          </div>
+        ) : (
+          /* ─────────────────────────────────────────────
+             SELECTED CUSTOMER CONVERSATION
+             ───────────────────────────────────────────── */
+          <div className="bg-card overflow-hidden rounded-3xl border">
+            <div className="border-b border-border p-4">
+              <Button asChild variant="ghost" size="sm">
+                <Link href="/admin/messages">
+                  <ArrowLeft className="mr-2 h-4 w-4" />
+                  Back to customers
+                </Link>
+              </Button>
+            </div>
 
-          <section className="flex min-h-[620px] flex-col">
             {refreshedSelected ? (
-              <>
+              <section className="flex min-h-[620px] flex-col">
                 <div className="border-b border-border p-5">
                   <div className="flex items-start justify-between gap-4">
                     <div>
                       <p className="font-semibold">
-                        {profileMap.get(
-                          refreshedSelected.customerId,
-                        )?.full_name || "Customer"}
+                        {profileMap.get(refreshedSelected.customerId)
+                          ?.full_name || "Customer"}
                       </p>
 
                       <p className="mt-1 text-xs text-muted-foreground">
-                        {refreshedSelected.applicationId
-                          ? `Application ${refreshedSelected.applicationId}`
-                          : "General support conversation"}
+                        Aurora customer conversation
                       </p>
                     </div>
 
@@ -250,32 +244,27 @@ export default async function AdminMessagesPage({
                   userId={user.id}
                   currentRole="admin"
                   initialMessages={messages}
+                  isAdmin
+                  conversationStatus={refreshedSelected.status}
                 />
-
-                <div className="border-t border-border p-5">
-                  <MessageComposer
-                    conversationId={refreshedSelected.id}
-                    userId={user.id}
-                    admin
-                    disabled={
-                      refreshedSelected.status === "closed"
-                    }
-                  />
-                </div>
-              </>
+              </section>
             ) : (
-              <div className="flex flex-1 items-center justify-center p-8 text-center">
+              <div className="flex min-h-[620px] items-center justify-center p-8 text-center">
                 <div>
                   <MessageSquare className="mx-auto h-10 w-10 text-muted-foreground" />
 
                   <h2 className="mt-4 text-xl font-semibold">
-                    No conversation selected
+                    Conversation not found
                   </h2>
+
+                  <Button asChild className="mt-5">
+                    <Link href="/admin/messages">Back to customers</Link>
+                  </Button>
                 </div>
               </div>
             )}
-          </section>
-        </div>
+          </div>
+        )}
       </main>
     </>
   );

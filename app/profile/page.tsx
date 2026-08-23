@@ -22,7 +22,12 @@ export default async function ProfilePage() {
     .single();
 
   return (
-    <DashboardShell title="Profile" email={user.email ?? ""}>
+    <DashboardShell
+      title="Profile"
+      email={user.email ?? ""}
+      backHref="/dashboard"
+      backLabel="Dashboard"
+    >
       <div className="mx-auto max-w-3xl">
         <ProfileForm profile={profile} />
       </div>

@@ -28,13 +28,18 @@ export default async function ApplicationsPage() {
   );
 
   return (
-    <DashboardShell title="Applications" email={user.email ?? ""}>
+    <DashboardShell
+      title="Application"
+      email={user?.email ?? ""}
+      backHref="/dashboard"
+      backLabel="My Dashboard"
+    >
       <p className="text-muted-foreground">
         Track every vehicle application and its ownership progress.
       </p>
 
       {applications.length === 0 ? (
-        <div className="rounded-3xl border bg-card p-10 text-center">
+        <div className="bg-card rounded-3xl border p-10 text-center">
           <h2 className="text-xl font-semibold">No applications yet</h2>
 
           <p className="mx-auto mt-2 max-w-md text-sm text-muted-foreground">
@@ -54,13 +59,11 @@ export default async function ApplicationsPage() {
               <Link
                 href={`/applications/${application.id}`}
                 key={application.id}
-                className="block rounded-3xl border bg-card p-6 transition hover:border-primary/40 hover:bg-muted/20"
+                className="bg-card block rounded-3xl border p-6 transition hover:border-primary/40 hover:bg-muted/20"
               >
                 <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-center">
                   <div>
-                    <p className="text-sm text-muted-foreground">
-                      Application
-                    </p>
+                    <p className="text-sm text-muted-foreground">Application</p>
 
                     <h2 className="mt-1 text-xl font-semibold">
                       {vehicle

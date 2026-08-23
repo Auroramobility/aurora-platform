@@ -77,6 +77,21 @@ type Profile = {
   drivers_license_back: string | null;
 };
 
+type FinancingRequest = {
+  id: string;
+  application_id: string;
+  vehicle_price: number;
+  currency: string;
+  down_payment_percent: number;
+  requested_down_payment: number;
+  requested_amount_financed: number;
+  requested_term_months: number;
+  estimated_monthly_payment: number;
+  estimated_total_paid: number;
+  created_at: string;
+  updated_at: string;
+};
+
 type FinancingTerms = {
   id: string;
   plan_id: string;
@@ -106,6 +121,17 @@ export type AdminApplicationDetail = {
   application: Application;
   profile: Profile | null;
   vehicle: Vehicle | null;
+
+  /**
+   * Customer's requested calculator values.
+   *
+   * These are NOT approved financing terms.
+   */
+  financingRequest: FinancingRequest | null;
+
+  /**
+   * Operational ownership plan and any final financing terms.
+   */
   ownershipPlan: {
     id: string;
     application_id: string;
@@ -136,17 +162,11 @@ function toApplication(row: {
   const status = row.status ?? "pending";
 
   if (
-    ![
-      "pending",
-      "reviewing",
-      "approved",
-      "rejected",
-      "cancelled",
-    ].includes(status)
+    !["pending", "reviewing", "approved", "rejected", "cancelled"].includes(
+      status,
+    )
   ) {
-    throw new Error(
-      "Invalid application status returned by the database.",
-    );
+    throw new Error("Invalid application status returned by the database.");
   }
 
   return {
@@ -155,9 +175,7 @@ function toApplication(row: {
   };
 }
 
-function toOwnershipPlanStatus(
-  status: string | null,
-): OwnershipPlanStatus {
+function toOwnershipPlanStatus(status: string | null): OwnershipPlanStatus {
   const allowed: OwnershipPlanStatus[] = [
     "draft",
     "ready",
@@ -172,9 +190,7 @@ function toOwnershipPlanStatus(
   const value = status ?? "draft";
 
   if (!allowed.includes(value as OwnershipPlanStatus)) {
-    throw new Error(
-      "Invalid ownership plan status returned by the database.",
-    );
+    throw new Error("Invalid ownership plan status returned by the database.");
   }
 
   return value as OwnershipPlanStatus;
@@ -193,9 +209,7 @@ async function createLicenseSignedUrl(
     .createSignedUrl(path, 300);
 
   if (error) {
-    throw new Error(
-      `Unable to access driver's license: ${error.message}`,
-    );
+    throw new Error(`Unable to access driver's license: ${error.message}`);
   }
 
   return data.signedUrl;
@@ -206,6 +220,12 @@ export async function getAdminApplicationDetail(
 ): Promise<AdminApplicationDetail | null> {
   const supabase = await createClient();
 
+  /*
+   * ============================================================
+   * AUTHENTICATION
+   * ============================================================
+   */
+
   const {
     data: { user },
   } = await supabase.auth.getUser();
@@ -214,8 +234,13 @@ export async function getAdminApplicationDetail(
     return null;
   }
 
-  const { data: isAdmin, error: adminError } =
-    await supabase.rpc("is_admin");
+  /*
+   * ============================================================
+   * ADMIN AUTHORIZATION
+   * ============================================================
+   */
+
+  const { data: isAdmin, error: adminError } = await supabase.rpc("is_admin");
 
   if (adminError) {
     throw new Error(
@@ -227,44 +252,82 @@ export async function getAdminApplicationDetail(
     return null;
   }
 
-  const { data: applicationRow, error: applicationError } =
-    await supabase
-      .from("applications")
-      .select(APPLICATION_SELECT)
-      .eq("id", id)
-      .maybeSingle();
+  /*
+   * ============================================================
+   * APPLICATION
+   * ============================================================
+   */
+
+  const { data: applicationRow, error: applicationError } = await supabase
+    .from("applications")
+    .select(APPLICATION_SELECT)
+    .eq("id", id)
+    .maybeSingle();
 
   if (applicationError) {
-    throw new Error(
-      `Unable to load application: ${applicationError.message}`,
-    );
+    throw new Error(`Unable to load application: ${applicationError.message}`);
   }
 
   if (!applicationRow) {
     return null;
   }
 
-  const [
-    profileResult,
-    vehicleResult,
-    planResult,
-  ] = await Promise.all([
-    supabase
-      .from("profiles")
-      .select(PROFILE_SELECT)
-      .eq("user_id", applicationRow.user_id)
-      .maybeSingle(),
+  /*
+   * ============================================================
+   * CUSTOMER / VEHICLE / FINANCING REQUEST / OWNERSHIP PLAN
+   * ============================================================
+   */
 
-    supabase
-      .from("vehicles")
-      .select(VEHICLE_SELECT)
-      .eq("id", applicationRow.vehicle_id)
-      .maybeSingle(),
+  const [profileResult, vehicleResult, financingRequestResult, planResult] =
+    await Promise.all([
+      supabase
+        .from("profiles")
+        .select(PROFILE_SELECT)
+        .eq("user_id", applicationRow.user_id)
+        .maybeSingle(),
 
-    supabase
-      .from("ownership_plans")
-      .select(
-        `
+      supabase
+        .from("vehicles")
+        .select(VEHICLE_SELECT)
+        .eq("id", applicationRow.vehicle_id)
+        .maybeSingle(),
+
+      /*
+       * Customer's calculator request.
+       *
+       * This is what the customer submitted.
+       *
+       * It does NOT represent:
+       * - financing approval
+       * - lender selection
+       * - payment confirmation
+       * - final ownership terms
+       */
+      supabase
+        .from("application_financing_requests")
+        .select(
+          `
+          id,
+          application_id,
+          vehicle_price,
+          currency,
+          down_payment_percent,
+          requested_down_payment,
+          requested_amount_financed,
+          requested_term_months,
+          estimated_monthly_payment,
+          estimated_total_paid,
+          created_at,
+          updated_at
+        `,
+        )
+        .eq("application_id", id)
+        .maybeSingle(),
+
+      supabase
+        .from("ownership_plans")
+        .select(
+          `
           id,
           application_id,
           status,
@@ -273,12 +336,20 @@ export async function getAdminApplicationDetail(
           activated_at,
           created_at
         `,
-      )
-      .eq("application_id", id)
-      .order("created_at", { ascending: false })
-      .limit(1)
-      .maybeSingle(),
-  ]);
+        )
+        .eq("application_id", id)
+        .order("created_at", {
+          ascending: false,
+        })
+        .limit(1)
+        .maybeSingle(),
+    ]);
+
+  /*
+   * ============================================================
+   * QUERY ERROR HANDLING
+   * ============================================================
+   */
 
   if (profileResult.error) {
     throw new Error(
@@ -292,6 +363,12 @@ export async function getAdminApplicationDetail(
     );
   }
 
+  if (financingRequestResult.error) {
+    throw new Error(
+      `Unable to load financing request: ${financingRequestResult.error.message}`,
+    );
+  }
+
   if (planResult.error) {
     throw new Error(
       `Unable to load ownership plan: ${planResult.error.message}`,
@@ -300,16 +377,35 @@ export async function getAdminApplicationDetail(
 
   const profile = profileResult.data as Profile | null;
 
+  const financingRequest =
+    financingRequestResult.data as FinancingRequest | null;
+
+  /*
+   * ============================================================
+   * IDENTITY DOCUMENTS
+   * ============================================================
+   */
+
   const [frontUrl, backUrl] = await Promise.all([
-    createLicenseSignedUrl(
-      supabase,
-      profile?.drivers_license_front ?? null,
-    ),
-    createLicenseSignedUrl(
-      supabase,
-      profile?.drivers_license_back ?? null,
-    ),
+    createLicenseSignedUrl(supabase, profile?.drivers_license_front ?? null),
+
+    createLicenseSignedUrl(supabase, profile?.drivers_license_back ?? null),
   ]);
+
+  /*
+   * ============================================================
+   * FINAL FINANCING TERMS
+   * ============================================================
+   *
+   * financing_terms is separate from
+   * application_financing_requests.
+   *
+   * application_financing_requests:
+   *   Customer's requested calculator values.
+   *
+   * financing_terms:
+   *   Operational/final financing terms.
+   */
 
   let financingTerms: FinancingTerms | null = null;
 
@@ -336,24 +432,34 @@ export async function getAdminApplicationDetail(
       .maybeSingle();
 
     if (error) {
-      throw new Error(
-        `Unable to load financing terms: ${error.message}`,
-      );
+      throw new Error(`Unable to load financing terms: ${error.message}`);
     }
 
     financingTerms = data as FinancingTerms | null;
   }
 
+  /*
+   * ============================================================
+   * OWNERSHIP PLAN
+   * ============================================================
+   */
+
   const plan = planResult.data as OwnershipPlan | null;
+
+  /*
+   * ============================================================
+   * RETURN
+   * ============================================================
+   */
 
   return {
     application: toApplication(applicationRow),
 
     profile,
 
-    vehicle: vehicleResult.data
-      ? toVehicle(vehicleResult.data)
-      : null,
+    vehicle: vehicleResult.data ? toVehicle(vehicleResult.data) : null,
+
+    financingRequest,
 
     identityDocuments: {
       frontUrl,

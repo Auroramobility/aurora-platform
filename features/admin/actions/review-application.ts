@@ -20,22 +20,27 @@ export async function reviewApplication(
   const decision = String(formData.get("decision") ?? "");
   const rejectionReason = String(formData.get("rejection_reason") ?? "");
 
-  if (!applicationId || !["reviewing", "approved", "rejected"].includes(decision)) {
+  if (
+    !applicationId ||
+    !["reviewing", "approved", "rejected"].includes(decision)
+  ) {
     return { error: "Invalid review request." };
   }
 
   const { data, error } = await supabase.rpc("review_application", {
     p_application_id: applicationId,
     p_decision: decision,
-    p_rejection_reason: rejectionReason || null,
+    p_rejection_reason: rejectionReason || undefined,
   });
 
   if (error || data !== true) {
-    return { error: safeAdminError("The application could not be updated.", error) };
+    return {
+      error: safeAdminError("The application could not be updated.", error),
+    };
   }
 
   revalidatePath("/admin");
-  revalidatePath(`/applications/${applicationId}`);
+  revalidatePath(`/admin/applications/${applicationId}`);
   revalidatePath("/dashboard");
   return { success: `Application ${decision}.` };
 }

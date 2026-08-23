@@ -20,7 +20,12 @@ export default async function SettingsPage() {
   const isEmailProvider = user.app_metadata?.provider === "email";
 
   return (
-    <DashboardShell title="Settings" email={user.email ?? ""}>
+    <DashboardShell
+      title="Settings"
+      email={user.email ?? ""}
+      backHref="/dashboard"
+      backLabel="Dashboard"
+    >
       <div className="mx-auto max-w-2xl space-y-6">
         <EmailSettingsForm currentEmail={user.email ?? ""} />
 
@@ -28,8 +33,8 @@ export default async function SettingsPage() {
           <PasswordSettingsForm />
         ) : (
           <div className="rounded-xl border border-border bg-surface p-6 text-sm text-muted-foreground">
-            You signed in with Google, so your password is managed by
-            Google — there&apos;s nothing to change here.
+            You signed in with Google, so your password is managed by Google —
+            there&apos;s nothing to change here.
           </div>
         )}
 

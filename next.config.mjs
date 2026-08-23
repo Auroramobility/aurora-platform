@@ -7,8 +7,10 @@
 // middleware — a reasonable next step, not done here). This still blocks
 // framing, restricts network/image origins to Supabase, and removes
 // default browser permissions this app doesn't use.
+const isDev = process.env.NODE_ENV === "development";
 const csp = [
   "default-src 'self'",
+  `script-src 'self' 'unsafe-inline'${isDev ? " 'unsafe-eval'" : ""}`,
   "script-src 'self' 'unsafe-inline'",
   "style-src 'self' 'unsafe-inline'",
   "img-src 'self' data: blob: https://*.supabase.co",

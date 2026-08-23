@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { MessageSquare, ArrowRight } from "lucide-react";
+import { MessageSquare } from "lucide-react";
+
 import { createClient } from "@/lib/supabase/server";
 import {
   getConversationsForCurrentUser,
@@ -8,243 +9,160 @@ import {
   getOrCreateConversation,
   markConversationRead,
 } from "@/features/messaging/lib/get-conversations";
-import { MessageComposer } from "@/components/messaging/message-composer";
 import { Button } from "@/components/ui/button";
 import { MessageThread } from "@/features/messaging/components/message-thread";
 import { DashboardShell } from "@/components/dashboard/dashboard-shell";
 
-type Props = {
-  searchParams?: Promise<{
-    conversation?: string;
-    application?: string;
-    ownershipPlan?: string;
-    new?: string;
-  }>;
-};
-
-export default async function MessagesPage({ searchParams }: Props) {
+export default async function MessagesPage() {
   const supabase = await createClient();
+
   const {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (!user) redirect("/login");
-
-  let conversations = await getConversationsForCurrentUser();
-  const params = searchParams ? await searchParams : {};
-
-  if (
-    params.new === "1" ||
-    (!params.conversation &&
-      (params.application || params.ownershipPlan))
-  ) {
-    const createdId = await getOrCreateConversation(
-      params.application,
-      params.ownershipPlan,
-    );
-
-    conversations = await getConversationsForCurrentUser();
-    params.conversation = createdId;
-  } else if (conversations.length === 0) {
-    const createdId = await getOrCreateConversation();
-    conversations = await getConversationsForCurrentUser();
-    params.conversation = createdId;
+  if (!user) {
+    redirect("/login");
   }
 
-  const selectedId =
-    params.conversation &&
-    conversations.some((item) => item.id === params.conversation)
-      ? params.conversation
-      : conversations[0]?.id;
+  /*
+   * Aurora has ONE customer/admin conversation.
+   *
+   * Applications and ownership plans are business records.
+   * They do NOT create separate message threads.
+   *
+   * The conversation is simply:
+   *
+   *      AURORA ADMIN <-> CUSTOMER
+   *
+   * All present, past, and future communication stays here.
+   */
+  let conversations = await getConversationsForCurrentUser();
 
-  const selected =
-    conversations.find((item) => item.id === selectedId) ?? null;
+  /*
+   * Find the general Aurora conversation only.
+   *
+   * A general conversation has:
+   * - application_id = null
+   * - ownership_plan_id = null
+   *
+   * We intentionally ignore application-specific and
+   * ownership-plan-specific conversations here.
+   */
+  let conversation =
+    conversations.find(
+      (item) => item.applicationId === null && item.ownershipPlanId === null,
+    ) ?? null;
 
-  const messages = selected
-    ? await getConversationMessages(selected.id)
-    : [];
+  /*
+   * If the customer does not have the general Aurora
+   * conversation yet, create it.
+   *
+   * No application ID.
+   * No ownership plan ID.
+   */
+  if (!conversation) {
+    const conversationId = await getOrCreateConversation();
 
+    conversations = await getConversationsForCurrentUser();
+
+    conversation =
+      conversations.find((item) => item.id === conversationId) ?? null;
+  }
+
+  /*
+   * There is only ONE conversation shown on this page.
+   *
+   * We deliberately do not:
+   * - select a conversation from the URL
+   * - create a conversation from application params
+   * - create a conversation from ownership-plan params
+   * - display vehicles
+   * - display application names
+   * - display ownership-plan names
+   */
+  const selected = conversation;
+
+  const messages = selected ? await getConversationMessages(selected.id) : [];
+
+  /*
+   * Mark Aurora's messages as read when the customer opens
+   * the conversation.
+   */
   if (selected) {
     await markConversationRead(selected.id);
+
     conversations = await getConversationsForCurrentUser();
+
+    conversation =
+      conversations.find((item) => item.id === selected.id) ?? selected;
   }
 
-  const refreshedSelected =
-    conversations.find((item) => item.id === selectedId) ?? null;
-
-  const applicationIds = conversations
-    .map((item) => item.applicationId)
-    .filter(Boolean) as string[];
-
-  const { data: applications } = applicationIds.length
-    ? await supabase
-        .from("applications")
-        .select("id, vehicle_id, status")
-        .in("id", applicationIds)
-    : { data: [] };
-
-  const vehicleIds = (applications ?? []).map(
-    (item) => item.vehicle_id,
-  );
-
-  const { data: vehicles } = vehicleIds.length
-    ? await supabase
-        .from("vehicles")
-        .select("id, brand, model, year")
-        .in("id", vehicleIds)
-    : { data: [] };
-
-  const vehicleMap = new Map(
-    (vehicles ?? []).map((vehicle) => [vehicle.id, vehicle]),
-  );
-
-  const appMap = new Map(
-    (applications ?? []).map((application) => [
-      application.id,
-      application,
-    ]),
-  );
+  const unreadCount = conversation?.unreadCount ?? 0;
 
   return (
-    <DashboardShell title="Aurora Support" email={user.email ?? ""}>
-      <div className="mb-6">
+    <DashboardShell
+      title="Aurora Support"
+      email={user.email ?? ""}
+      backHref="/dashboard"
+      backLabel="Dashboard"
+    >
+      <div className="mb-4">
         <p className="text-sm text-muted-foreground">
-          Talk directly with the Aurora team about your application,
-          ownership plan, or next steps.
+          Talk directly with the Aurora team about your application, payments,
+          ownership, or anything else you need help with.
         </p>
       </div>
 
-      <div className="grid min-h-[620px] overflow-hidden rounded-3xl border bg-card lg:grid-cols-[320px_1fr]">
-        <aside className="border-b border-border lg:border-b-0 lg:border-r">
-          <div className="p-5">
-            <h2 className="font-semibold">Conversations</h2>
-          </div>
-
-          <div className="divide-y divide-border">
-            {conversations.map((conversation) => {
-              const application = conversation.applicationId
-                ? appMap.get(conversation.applicationId)
-                : undefined;
-
-              const vehicle = application
-                ? vehicleMap.get(application.vehicle_id)
-                : undefined;
-
-              const label = vehicle
-                ? `${vehicle.brand} ${vehicle.model}`
-                : conversation.ownershipPlanId
-                  ? "Ownership plan"
-                  : "Aurora support";
-
-              return (
-                <Link
-                  key={conversation.id}
-                  href={`/messages?conversation=${conversation.id}`}
-                  className={`block p-5 transition hover:bg-muted/40 ${
-                    conversation.id === selectedId
-                      ? "bg-muted/50"
-                      : ""
-                  }`}
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    <p className="font-medium">{label}</p>
-                    <ArrowRight className="h-4 w-4 text-muted-foreground" />
-                  </div>
-
-                  <div className="mt-1 flex items-center gap-2">
-                    <p className="text-xs capitalize text-muted-foreground">
-                      {conversation.status}
-                    </p>
-
-                    {conversation.unreadCount > 0 ? (
-                      <span className="rounded-full bg-primary px-2 py-0.5 text-[10px] font-semibold text-primary-foreground">
-                        {conversation.unreadCount} unread
-                      </span>
-                    ) : null}
-                  </div>
-                </Link>
-              );
-            })}
-          </div>
-        </aside>
-
-        <section className="flex min-h-[620px] flex-col">
-          {refreshedSelected ? (
-            <>
-              <div className="border-b border-border p-5">
-                <p className="font-semibold">
-                  {refreshedSelected.applicationId
-                    ? "Application conversation"
-                    : "Aurora support"}
-                </p>
-
-                <p className="mt-1 text-xs text-muted-foreground">
-                  Aurora team messages appear here. Payment status is never
-                  changed through chat.
-                </p>
-              </div>
-
-              <MessageThread
-                conversationId={refreshedSelected.id}
-                userId={user.id}
-                currentRole="customer"
-                initialMessages={messages}
-                emptyTitle="Start the conversation"
-                emptyDescription="Ask about your application, ownership plan, financing terms, or anything Aurora needs from you."
-              />
-
-              <div className="border-t border-border p-5">
-                {refreshedSelected.status === "closed" ? (
-                  <div className="flex flex-col gap-3 rounded-2xl border border-border bg-muted/30 p-4 sm:flex-row sm:items-center sm:justify-between">
-                    <div>
-                      <p className="text-sm font-medium">
-                        This conversation is closed.
-                      </p>
-
-                      <p className="mt-1 text-xs text-muted-foreground">
-                        Start a new thread if you need to continue the
-                        conversation.
-                      </p>
-                    </div>
-
-                    <Button asChild size="sm">
-                      <Link
-                        href={`/messages?new=1${
-                          refreshedSelected.applicationId
-                            ? `&application=${refreshedSelected.applicationId}`
-                            : refreshedSelected.ownershipPlanId
-                              ? `&ownershipPlan=${refreshedSelected.ownershipPlanId}`
-                              : ""
-                        }`}
-                      >
-                        Start new conversation
-                      </Link>
-                    </Button>
-                  </div>
-                ) : (
-             <MessageComposer
-              conversationId={refreshedSelected.id}
-              userId={user.id}
-                  />
-                )}
-              </div>
-            </>
-          ) : (
-            <div className="flex flex-1 items-center justify-center p-8 text-center">
+      <div className="bg-card grid min-h-[620px] overflow-hidden rounded-3xl border">
+        {conversation ? (
+          <section className="flex min-h-[620px] flex-col overflow-hidden">
+            {/* ── Single Aurora conversation header ── */}
+            <div className="flex shrink-0 items-center justify-between border-b border-border px-5 py-4">
               <div>
-                <MessageSquare className="mx-auto h-10 w-10 text-muted-foreground" />
+                <p className="text-sm font-semibold">Aurora</p>
 
-                <h2 className="mt-4 text-xl font-semibold">
-                  No conversation selected
-                </h2>
-
-                <Button asChild className="mt-5">
-                  <Link href="/messages">Open Aurora support</Link>
-                </Button>
+                <p className="mt-0.5 text-xs text-muted-foreground">
+                  Your conversation with the Aurora team
+                </p>
               </div>
+
+              {unreadCount > 0 ? (
+                <span className="rounded-full bg-primary px-2.5 py-1 text-[10px] font-semibold text-primary-foreground">
+                  {unreadCount} new
+                </span>
+              ) : null}
             </div>
-          )}
-        </section>
+
+            {/* ── Single continuous conversation ── */}
+            <MessageThread
+              conversationId={conversation.id}
+              userId={user.id}
+              currentRole="customer"
+              initialMessages={messages}
+              emptyTitle="Start the conversation"
+              emptyDescription="Send a message to the Aurora team. Your conversation stays here for future questions, updates, and next steps."
+              conversationStatus={conversation.status}
+            />
+          </section>
+        ) : (
+          <div className="flex min-h-[620px] items-center justify-center p-8 text-center">
+            <div>
+              <MessageSquare className="mx-auto h-10 w-10 text-muted-foreground" />
+
+              <h2 className="mt-4 text-xl font-semibold">
+                Aurora conversation unavailable
+              </h2>
+
+              <p className="mt-2 text-sm text-muted-foreground">
+                We could not open your Aurora conversation.
+              </p>
+
+              <Button asChild className="mt-5">
+                <Link href="/dashboard">Back to Dashboard</Link>
+              </Button>
+            </div>
+          </div>
+        )}
       </div>
     </DashboardShell>
   );

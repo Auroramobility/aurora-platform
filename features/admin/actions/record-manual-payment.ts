@@ -23,10 +23,13 @@ export async function recordManualPayment(
   if (!planId || !["down_payment", "installment"].includes(paymentType)) {
     return { error: "Invalid payment request." };
   }
-  if (!Number.isFinite(amount) || amount <= 0) return { error: "Enter a valid payment amount." };
-  if (!/^\d{4}-\d{2}-\d{2}$/.test(paymentDate)) return { error: "Enter a valid payment date." };
+  if (!Number.isFinite(amount) || amount <= 0)
+    return { error: "Enter a valid payment amount." };
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(paymentDate))
+    return { error: "Enter a valid payment date." };
   if (!reference) return { error: "A payment reference is required." };
-  if (paymentType === "installment" && !scheduleId) return { error: "Select the payment installment." };
+  if (paymentType === "installment" && !scheduleId)
+    return { error: "Select the payment installment." };
 
   const paymentDateTime = `${paymentDate}T12:00:00.000Z`;
   const { data, error } = await supabase.rpc("record_manual_payment", {
@@ -35,14 +38,18 @@ export async function recordManualPayment(
     p_amount: amount,
     p_payment_date: paymentDateTime,
     p_transaction_reference: reference,
-    p_schedule_id: paymentType === "installment" ? scheduleId : null,
+    p_schedule_id: paymentType === "installment" ? scheduleId : undefined,
   });
 
   if (error || !data) {
-    return { error: safeAdminError("The payment could not be recorded.", error) };
+    return {
+      error: safeAdminError("The payment could not be recorded.", error),
+    };
   }
 
   revalidatePath("/admin");
   revalidatePath(`/ownership/${planId}`);
-  return { success: "Payment recorded and the financial schedule was updated." };
+  return {
+    success: "Payment recorded and the financial schedule was updated.",
+  };
 }

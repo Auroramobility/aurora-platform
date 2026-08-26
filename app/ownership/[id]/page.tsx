@@ -15,6 +15,7 @@ import { OwnershipPlanActions } from "@/features/ownership/components/ownership-
 import { getOwnershipPlanStatusConfig } from "@/features/ownership/types/ownership-plan";
 import { getOwnershipPlan } from "@/features/ownership/lib/get-ownership-plan";
 import { createClient } from "@/lib/supabase/server";
+import { BackButton } from "@/components/ui/back-button";
 
 function money(value: number | null, currency = "USD") {
   return value == null
@@ -123,18 +124,8 @@ export default async function OwnershipPlanPage({ params }: Props) {
     ownershipThreshold > 0 && amountPaid >= ownershipThreshold;
 
   return (
-    <DashboardShell
-      title="Ownership Plan"
-      email={user.email ?? ""}
-      backHref="/applications"
-      backLabel="My Applications"
-    >
-      <Button asChild variant="ghost" className="-ml-3">
-        <Link href={`/applications/${application.id}`}>
-          <ArrowLeft className="h-4 w-4" />
-          Back to application
-        </Link>
-      </Button>
+    <DashboardShell title="Ownership Plan" email={user.email ?? ""}>
+      <BackButton />
 
       <header className="flex flex-col justify-between gap-5 sm:flex-row sm:items-end">
         <div>

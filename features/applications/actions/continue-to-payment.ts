@@ -103,7 +103,7 @@ export async function continueToPayment(
   let conversationId: string;
 
   try {
-    conversationId = await getOrCreateConversation();
+    conversationId = await getOrCreateConversation(applicationId);
   } catch {
     return {
       ok: false,

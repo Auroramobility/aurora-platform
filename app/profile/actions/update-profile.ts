@@ -1,10 +1,8 @@
 "use server";
 
-import type { Database } from "@/types/supabase";
-import { createClient } from "@/lib/supabase/server";
 import { revalidatePath } from "next/cache";
 
-type ProfileUpdate = Database["public"]["Tables"]["profiles"]["Update"];
+import { createClient } from "@/lib/supabase/server";
 
 export async function updateProfile(formData: FormData) {
   const supabase = await createClient();
@@ -17,33 +15,74 @@ export async function updateProfile(formData: FormData) {
     throw new Error("Unauthorized");
   }
 
-  const updates: ProfileUpdate = {
-    full_name: formData.get("full_name") as string,
-    phone: formData.get("phone") as string,
-    country: formData.get("country") as string,
-    state: formData.get("state") as string,
-    address: formData.get("address") as string,
-    city: formData.get("city") as string,
-    postal_code: formData.get("postal_code") as string,
-    employment_status: formData.get("employment_status") as string,
-    monthly_income: formData.get("monthly_income")
-      ? Number(formData.get("monthly_income"))
-      : null,
-    currency: (formData.get("currency") as string) || null,
-    preferred_language: (formData.get("preferred_language") as string) || null,
-    timezone: (formData.get("timezone") as string) || null,
-    drivers_license: formData.get("drivers_license") as string,
+  const textValue = (name: string) => {
+    const value = formData.get(name);
+
+    if (typeof value !== "string") {
+      return null;
+    }
+
+    const trimmed = value.trim();
+
+    return trimmed.length > 0 ? trimmed : null;
   };
 
-  const { error } = await supabase
-    .from("profiles")
-    .update(updates)
-    .eq("user_id", user.id);
+  const monthlyIncomeValue = formData.get("monthly_income");
+
+  const monthlyIncome =
+    typeof monthlyIncomeValue === "string" &&
+    monthlyIncomeValue.trim().length > 0
+      ? Number(monthlyIncomeValue)
+      : null;
+
+  const updates = {
+    user_id: user.id,
+
+    full_name: textValue("full_name"),
+    phone: textValue("phone"),
+    country: textValue("country"),
+    state: textValue("state"),
+    address: textValue("address"),
+    city: textValue("city"),
+    postal_code: textValue("postal_code"),
+
+    date_of_birth: textValue("date_of_birth"),
+
+    employment_status: textValue("employment_status"),
+
+    monthly_income:
+      monthlyIncome !== null && Number.isFinite(monthlyIncome)
+        ? monthlyIncome
+        : null,
+
+    currency: textValue("currency"),
+    preferred_language: textValue("preferred_language"),
+    timezone: textValue("timezone"),
+
+    drivers_license: textValue("drivers_license"),
+  };
+
+  /*
+   * Use upsert instead of relying on UPDATE alone.
+   *
+   * This makes the profile save work whether the customer already
+   * has a profile row or the row is missing.
+   */
+  const { error } = await supabase.from("profiles").upsert(updates, {
+    onConflict: "user_id",
+  });
 
   if (error) {
-    throw error;
+    console.error("[updateProfile] Profile save error:", error);
+
+    throw new Error("Your profile could not be saved.");
   }
 
+  /*
+   * Refresh every page that depends on profile information.
+   */
   revalidatePath("/profile");
   revalidatePath("/dashboard");
+  revalidatePath("/applications");
+  revalidatePath("/admin");
 }

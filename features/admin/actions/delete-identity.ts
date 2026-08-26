@@ -29,35 +29,33 @@ export async function deleteIdentity(
 
     /*
      * ============================================================
-     * LOAD EXISTING IDENTITY DOCUMENT PATHS
+     * LOAD LICENSE PATHS BEFORE DELETING THE PROFILE
      * ============================================================
      */
 
     const { data: profile, error: profileError } = await supabase
       .from("profiles")
-      .select(
-        `
-            user_id,
-            drivers_license_front,
-            drivers_license_back
-          `,
-      )
+      .select("user_id, drivers_license_front, drivers_license_back")
       .eq("user_id", userId)
       .maybeSingle();
 
     if (profileError) {
+      console.error("[deleteIdentity] Profile load error:", profileError);
+
       return {
         error: safeAdminError("Identity could not be loaded.", profileError),
       };
     }
 
     if (!profile) {
-      return { error: "Customer profile not found." };
+      return {
+        error: "Customer profile not found.",
+      };
     }
 
     /*
      * ============================================================
-     * DELETE PRIVATE LICENSE DOCUMENTS
+     * DELETE LICENSE FILES FROM SUPABASE STORAGE
      * ============================================================
      */
 
@@ -85,55 +83,63 @@ export async function deleteIdentity(
 
     /*
      * ============================================================
-     * CLEAR IDENTITY DATA
+     * DELETE PROFILE + CASCADE ALL ATTACHED AURORA DATA
      * ============================================================
-     *
-     * Keep the customer profile.
-     *
-     * Remove only the submitted identity material and
-     * verification state.
      */
 
-    const { error: updateError } = await supabase
-      .from("profiles")
-      .update({
-        identity_verified: false,
-        identity_verified_at: null,
-        identity_verified_by: null,
-        drivers_license_front: null,
-        drivers_license_back: null,
-      })
-      .eq("user_id", userId);
+    const { data: deleted, error: deleteError } = await supabase.rpc(
+      "delete_identity_cascade",
+      {
+        p_user_id: userId,
+      },
+    );
 
-    if (updateError) {
-      console.error("[deleteIdentity] Profile update error:", updateError);
+    if (deleteError) {
+      console.error("[deleteIdentity] Cascade deletion error:", deleteError);
 
       return {
         error: safeAdminError(
-          "Identity information could not be cleared.",
-          updateError,
+          "The identity could not be deleted.",
+          deleteError,
         ),
+      };
+    }
+
+    if (!deleted) {
+      console.error("[deleteIdentity] No profile was deleted:", userId);
+
+      return {
+        error: "The identity record could not be deleted.",
       };
     }
 
     /*
      * ============================================================
-     * REFRESH
+     * REFRESH ADMIN/CUSTOMER VIEWS
      * ============================================================
      */
 
     revalidatePath("/admin");
+    revalidatePath("/admin/identity");
+    revalidatePath(`/admin/identity/${userId}`);
+    revalidatePath("/admin/applications");
+    revalidatePath("/admin/ownership");
+    revalidatePath("/admin/payments");
+    revalidatePath("/admin/messages");
     revalidatePath("/dashboard");
+    revalidatePath("/applications");
+    revalidatePath("/payments");
+    revalidatePath("/messages");
     revalidatePath("/profile");
 
     return {
-      success: "Identity documents and verification were deleted.",
+      success: "Identity deleted.",
     };
   } catch (error) {
     console.error("[deleteIdentity] Unexpected server error:", error);
 
     return {
-      error: "The identity information could not be deleted.",
+      error: "The identity could not be deleted.",
     };
   }
 }

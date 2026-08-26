@@ -16,6 +16,7 @@ import {
 
 import { useCompareSelection } from "@/features/vehicles/state/use-compare-selection";
 import type { Vehicle } from "@/features/vehicles/types/vehicle";
+import { BackButton } from "@/components/navigation/back-button";
 
 type Props = {
   vehicles: Vehicle[];
@@ -516,24 +517,10 @@ export function ComparePage({ vehicles }: Props) {
             padding: "48px 32px 70px",
           }}
         >
-          <Link
-            href="/dashboard"
-            style={{
-              display: "inline-flex",
-              alignItems: "center",
-              gap: "7px",
-              marginBottom: "50px",
-              color: "hsl(190 100% 85% / .75)",
-              textDecoration: "none",
-              fontSize: "9px",
-              fontWeight: 800,
-              letterSpacing: ".22em",
-              textTransform: "uppercase",
-            }}
-          >
-            <ArrowLeft size={12} />
-            Dashboard
-          </Link>
+          <BackButton
+            label="Back"
+            className="mb-[50px] inline-flex items-center gap-[7px] border-0 bg-transparent p-0 text-[9px] font-extrabold uppercase tracking-[.22em] text-[hsl(190_100%_85%/.75)] no-underline transition-opacity hover:opacity-80"
+          />
 
           <div
             style={{

@@ -31,15 +31,16 @@ export function MessageThread({
   const [messages, setMessages] = useState<Message[]>(initialMessages);
   const [typingRole, setTypingRole] = useState<SenderRole | null>(null);
 
-  // Sync when switching conversations or server re-renders
   useEffect(() => {
     setMessages(initialMessages);
   }, [conversationId, initialMessages]);
 
-  // Scroll to bottom when messages change
   useEffect(() => {
     const el = document.getElementById("message-scroll-anchor");
-    el?.scrollIntoView({ behavior: "smooth" });
+
+    el?.scrollIntoView({
+      behavior: "smooth",
+    });
   }, [messages.length]);
 
   const handleIncoming = useCallback((message: Message) => {
@@ -85,75 +86,110 @@ export function MessageThread({
   );
 
   return (
-    <div className="flex flex-1 flex-col overflow-hidden">
-      {/* Message list */}
-      <div className="flex-1 space-y-4 overflow-y-auto p-5">
+    <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+      <div className="flex min-h-0 flex-1 flex-col overflow-y-auto">
         <MessagingRealtime
           conversationId={conversationId}
           userId={userId}
           onMessage={handleIncoming}
-          onTyping={(typing, role) => setTypingRole(typing ? role : null)}
+          onTyping={(typing, role) => {
+            setTypingRole(typing ? role : null);
+          }}
         />
 
-        {messages.length === 0 ? (
-          <div className="flex h-full min-h-64 flex-col items-center justify-center text-center">
-            <MessageSquare className="h-10 w-10 text-muted-foreground" />
+        <div className="flex min-w-0 flex-1 flex-col gap-5 p-5">
+          {messages.length === 0 ? (
+            <div className="flex min-h-64 flex-1 flex-col items-center justify-center text-center">
+              <MessageSquare className="h-10 w-10 text-muted-foreground" />
 
-            <p className="mt-4 font-semibold">{emptyTitle}</p>
+              <p className="mt-4 font-semibold">{emptyTitle}</p>
 
-            {emptyDescription ? (
-              <p className="mt-2 max-w-sm text-sm text-muted-foreground">
-                {emptyDescription}
-              </p>
-            ) : null}
-          </div>
-        ) : (
-          messages.map((message) => {
-            const isOwn = message.senderRole === currentRole;
+              {emptyDescription ? (
+                <p className="mt-2 max-w-sm text-sm leading-relaxed text-muted-foreground">
+                  {emptyDescription}
+                </p>
+              ) : null}
+            </div>
+          ) : (
+            messages.map((message) => {
+              const isOwnMessage = message.senderRole === currentRole;
 
-            return (
-              <div
-                key={message.id}
-                className={`flex ${isOwn ? "justify-end" : "justify-start"}`}
-              >
-                <div
-                  className={`max-w-[85%] rounded-2xl px-4 py-3 ${
-                    isOwn ? "bg-primary text-primary-foreground" : "bg-muted"
-                  }`}
-                >
-                  <p className="whitespace-pre-wrap text-sm leading-relaxed">
-                    {message.body}
-                  </p>
+              const senderLabel =
+                message.senderRole === currentRole
+                  ? "You"
+                  : message.senderRole === "admin"
+                    ? "Aurora"
+                    : "Customer";
 
-                  <p
-                    className={`mt-2 text-[11px] ${
-                      isOwn
-                        ? "text-primary-foreground/70"
-                        : "text-muted-foreground"
+              return (
+                <div key={message.id} className="flex w-full min-w-0 shrink-0">
+                  <div
+                    className={`flex w-full min-w-0 ${
+                      isOwnMessage ? "justify-end" : "justify-start"
                     }`}
                   >
-                    {new Date(message.createdAt).toLocaleString()}
+                    <div
+                      className={`flex min-w-0 max-w-[min(72vw,42rem)] flex-col ${
+                        isOwnMessage ? "items-end" : "items-start"
+                      }`}
+                    >
+                      <p className="mb-1.5 px-1 text-[11px] font-semibold text-muted-foreground">
+                        {senderLabel}
+                      </p>
+
+                      <div
+                        className={[
+                          "w-fit max-w-full",
+                          "rounded-2xl px-4 py-3",
+                          "whitespace-normal break-words",
+                          "shadow-sm",
+                          isOwnMessage
+                            ? "rounded-br-md bg-primary text-primary-foreground"
+                            : "rounded-bl-md border border-border bg-muted text-foreground",
+                        ].join(" ")}
+                      >
+                        <p className="whitespace-pre-wrap break-words text-sm leading-relaxed">
+                          {message.body}
+                        </p>
+
+                        <p
+                          className={[
+                            "mt-2 text-[10px]",
+                            isOwnMessage
+                              ? "text-primary-foreground/65"
+                              : "text-muted-foreground/70",
+                          ].join(" ")}
+                        >
+                          {new Date(message.createdAt).toLocaleString()}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              );
+            })
+          )}
+
+          {typingRole && typingRole !== currentRole ? (
+            <div className="flex w-full min-w-0 shrink-0 justify-start">
+              <div className="flex max-w-[min(72vw,42rem)] items-start">
+                <div className="rounded-2xl rounded-bl-md bg-muted px-4 py-3">
+                  <p className="text-xs italic text-muted-foreground">
+                    {typingRole === "admin"
+                      ? "Aurora is typing…"
+                      : "You are typing…"}
                   </p>
                 </div>
               </div>
-            );
-          })
-        )}
+            </div>
+          ) : null}
 
-        {typingRole && typingRole !== currentRole ? (
-          <p className="text-xs italic text-muted-foreground">
-            {typingRole === "admin"
-              ? "Aurora is typing…"
-              : "Customer is typing…"}
-          </p>
-        ) : null}
-
-        <div id="message-scroll-anchor" />
+          <div id="message-scroll-anchor" className="h-px shrink-0" />
+        </div>
       </div>
 
-      {/* Composer */}
       {conversationStatus !== "closed" ? (
-        <div className="border-t border-border p-5">
+        <div className="bg-card shrink-0 border-t border-border p-5">
           <MessageComposer
             conversationId={conversationId}
             userId={userId}

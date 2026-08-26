@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
+import { DeleteIdentityButton } from "@/app/admin/identity/delete-identity-button";
 import { IdentityReviewForm } from "@/app/admin/components/admin-action-form";
 import { getAdminIdentityDetail } from "@/features/admin/lib/get-admin-identity-detail";
 
@@ -231,6 +232,24 @@ export default async function AdminIdentityReviewPage({
           </div>
 
           <IdentityReviewForm userId={profile.user_id} verified={verified} />
+
+          <div className="mt-6 border-t pt-6">
+            <h3 className="text-sm font-semibold text-red-700 dark:text-red-400">
+              Delete identity information
+            </h3>
+
+            <p className="mt-1 text-sm text-muted-foreground">
+              Permanently remove the uploaded driver's license documents and
+              clear the customer's identity verification status. The customer
+              account, profile, applications, ownership plans, payments, and
+              other records will remain.
+            </p>
+
+            <DeleteIdentityButton
+              userId={profile.user_id}
+              customerName={profile.full_name || "this customer"}
+            />
+          </div>
         </section>
       </main>
     </div>

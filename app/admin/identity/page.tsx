@@ -2,6 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { AdminDashboardShell } from "@/components/admin/admin-dashboard-shell";
+import { DeleteIdentityButton } from "./delete-identity-button";
 import { requireAdmin } from "@/features/admin/lib/authorization";
 
 export default async function AdminIdentityPage() {
@@ -155,12 +156,19 @@ export default async function AdminIdentityPage() {
                         </p>
                       </div>
 
-                      <Link
-                        href={`/admin/identity/${profile.user_id}`}
-                        className="inline-flex shrink-0 items-center justify-center rounded-xl border px-4 py-2 text-sm font-medium transition-colors hover:bg-muted"
-                      >
-                        Review identity →
-                      </Link>
+                      <div className="flex shrink-0 flex-wrap items-center gap-2">
+                        <Link
+                          href={`/admin/identity/${profile.user_id}`}
+                          className="inline-flex items-center justify-center rounded-xl border px-4 py-2 text-sm font-medium transition-colors hover:bg-muted"
+                        >
+                          Review identity →
+                        </Link>
+
+                        <DeleteIdentityButton
+                          userId={profile.user_id}
+                          customerName={profile.full_name || "this customer"}
+                        />
+                      </div>
                     </div>
                   </article>
                 );

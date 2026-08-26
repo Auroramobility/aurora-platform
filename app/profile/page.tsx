@@ -15,6 +15,8 @@ export default async function ProfilePage() {
     redirect("/login");
   }
 
+  console.log("PROFILE PAGE USER:", user.id);
+
   const { data: profile } = await supabase
     .from("profiles")
     .select("*")

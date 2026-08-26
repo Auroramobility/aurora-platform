@@ -22,6 +22,7 @@ type Profile = {
   address: string | null;
   city: string | null;
   postal_code: string | null;
+  date_of_birth: string | null;
   employment_status: string | null;
   monthly_income: number | null;
   currency: string | null;
@@ -61,9 +62,7 @@ export function ProfileForm({ profile }: { profile: Profile | null }) {
         />
 
         <div className="flex flex-col items-center gap-4">
-          <AvatarUpload
-  currentUrl={profile?.profile_photo_url}
-/>
+          <AvatarUpload currentUrl={profile?.profile_photo_url} />
         </div>
       </CardSection>
 
@@ -109,6 +108,13 @@ export function ProfileForm({ profile }: { profile: Profile | null }) {
         placeholder="Postal Code"
       />
 
+      <Input
+        name="date_of_birth"
+        type="date"
+        defaultValue={profile?.date_of_birth ?? ""}
+        placeholder="Date of Birth"
+      />
+
       <Select
         name="employment_status"
         defaultValue={profile?.employment_status ?? ""}
@@ -136,18 +142,18 @@ export function ProfileForm({ profile }: { profile: Profile | null }) {
 
         <div className="grid gap-4 md:grid-cols-2">
           <DocumentUpload
-  label="Upload Front"
-  name="drivers_license_front"
-  accept="image/*,application/pdf"
-  currentPath={profile?.drivers_license_front ?? null}
-/>
+            label="Upload Front"
+            name="drivers_license_front"
+            accept="image/*,application/pdf"
+            currentPath={profile?.drivers_license_front ?? null}
+          />
 
-<DocumentUpload
-  label="Upload Back"
-  name="drivers_license_back"
-  accept="image/*,application/pdf"
-  currentPath={profile?.drivers_license_back ?? null}
-/>
+          <DocumentUpload
+            label="Upload Back"
+            name="drivers_license_back"
+            accept="image/*,application/pdf"
+            currentPath={profile?.drivers_license_back ?? null}
+          />
         </div>
       </CardSection>
 

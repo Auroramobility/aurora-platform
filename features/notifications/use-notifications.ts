@@ -30,37 +30,29 @@ type InitialCounts = {
 
 export function useNotifications(initial: InitialCounts) {
   const supabase = useMemo(() => createClient(), []);
+
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [unreadMessages, setUnreadMessages] = useState(initial.unreadMessages);
 
   const addNotification = useCallback((notif: Omit<Notification, "read">) => {
     setNotifications((prev) => {
-      if (prev.some((n) => n.id === notif.id)) return prev;
+      if (prev.some((n) => n.id === notif.id)) {
+        return prev;
+      }
 
       return [{ ...notif, read: false }, ...prev].slice(0, 20);
     });
   }, []);
 
-  const markAllRead = useCallback(() => {
-    setNotifications((prev) => prev.map((n) => ({ ...n, read: true })));
-    setUnreadMessages(0);
-  }, []);
-
   useEffect(() => {
     const channels: ReturnType<typeof supabase.channel>[] = [];
 
-    /*
-     * Every hook instance gets its own channel names.
-     *
-     * This prevents Next.js/React development remounts from trying to
-     * register callbacks on an already-subscribed Realtime channel.
-     */
     const channelPrefix = `aurora-notif-${
       initial.isAdmin ? "admin" : "customer"
     }-${crypto.randomUUID()}`;
 
     // ============================================================
-    // Messages
+    // MESSAGES
     // ============================================================
 
     const msgChannel = supabase
@@ -83,7 +75,7 @@ export function useNotifications(initial: InitialCounts) {
             created_at: string;
           };
 
-          setUnreadMessages((c) => c + 1);
+          setUnreadMessages((count) => count + 1);
 
           addNotification({
             id: `msg-${row.id}`,
@@ -107,7 +99,7 @@ export function useNotifications(initial: InitialCounts) {
     channels.push(msgChannel);
 
     // ============================================================
-    // Applications
+    // APPLICATIONS
     // ============================================================
 
     const appChannel = supabase
@@ -130,23 +122,10 @@ export function useNotifications(initial: InitialCounts) {
             status: string;
           };
 
-          if (row.status === old.status) return;
-
-          // Admin notification
-          if (initial.isAdmin && row.status === "pending") {
-            addNotification({
-              id: `app-${row.id}-pending`,
-              type: "admin_new_application",
-              title: "New application submitted",
-              body: "A customer has submitted a new vehicle application.",
-              href: `/admin/applications/${row.id}`,
-              createdAt: row.updated_at,
-            });
-
+          if (row.status === old.status) {
             return;
           }
 
-          // Customer notifications
           if (!initial.isAdmin) {
             if (row.status === "reviewing") {
               addNotification({
@@ -157,7 +136,9 @@ export function useNotifications(initial: InitialCounts) {
                 href: `/applications/${row.id}`,
                 createdAt: row.updated_at,
               });
-            } else if (row.status === "approved") {
+            }
+
+            if (row.status === "approved") {
               addNotification({
                 id: `app-${row.id}-approved`,
                 type: "application_approved",
@@ -166,7 +147,9 @@ export function useNotifications(initial: InitialCounts) {
                 href: `/applications/${row.id}`,
                 createdAt: row.updated_at,
               });
-            } else if (row.status === "rejected") {
+            }
+
+            if (row.status === "rejected") {
               addNotification({
                 id: `app-${row.id}-rejected`,
                 type: "application_rejected",
@@ -184,7 +167,7 @@ export function useNotifications(initial: InitialCounts) {
     channels.push(appChannel);
 
     // ============================================================
-    // Ownership plans
+    // OWNERSHIP PLANS
     // ============================================================
 
     const planChannel = supabase
@@ -207,9 +190,10 @@ export function useNotifications(initial: InitialCounts) {
             status: string;
           };
 
-          if (row.status === old.status) return;
+          if (row.status === old.status) {
+            return;
+          }
 
-          // Customer: plan ready
           if (!initial.isAdmin && row.status === "ready") {
             addNotification({
               id: `plan-${row.id}-ready`,
@@ -221,7 +205,6 @@ export function useNotifications(initial: InitialCounts) {
             });
           }
 
-          // Customer: plan activated
           if (!initial.isAdmin && row.status === "active") {
             addNotification({
               id: `plan-${row.id}-active`,
@@ -233,7 +216,6 @@ export function useNotifications(initial: InitialCounts) {
             });
           }
 
-          // Admin: customer accepted plan
           if (initial.isAdmin && row.status === "accepted") {
             addNotification({
               id: `plan-${row.id}-accepted`,
@@ -251,7 +233,7 @@ export function useNotifications(initial: InitialCounts) {
     channels.push(planChannel);
 
     // ============================================================
-    // Identity documents — admin only
+    // IDENTITY DOCUMENTS — ADMIN
     // ============================================================
 
     if (initial.isAdmin) {
@@ -287,7 +269,7 @@ export function useNotifications(initial: InitialCounts) {
                 type: "admin_identity_uploaded",
                 title: "Identity document uploaded",
                 body: `${row.full_name ?? "A customer"} uploaded their driver's license for verification.`,
-                href: `/admin`,
+                href: `/admin/identity/${row.user_id}`,
                 createdAt: row.updated_at,
               });
             }
@@ -298,10 +280,6 @@ export function useNotifications(initial: InitialCounts) {
       channels.push(profileChannel);
     }
 
-    // ============================================================
-    // Cleanup
-    // ============================================================
-
     return () => {
       channels.forEach((channel) => {
         void supabase.removeChannel(channel);
@@ -309,13 +287,37 @@ export function useNotifications(initial: InitialCounts) {
     };
   }, [supabase, initial.isAdmin, addNotification]);
 
+  /*
+   * Messages are already represented by unreadMessages.
+   * Do not count their notification objects a second time.
+   */
+  const realtimeNotificationCount = notifications.filter(
+    (notification) => !notification.read && notification.type !== "new_message",
+  ).length;
+
+  /*
+   * Initial server-side attention counts.
+   *
+   * These are intentionally included in the bell badge because
+   * they represent things the user still needs to act on.
+   */
+  const initialAttentionCount = initial.pendingApplications + initial.planReady;
+
+  /*
+   * Final badge:
+   *
+   * unread messages
+   * +
+   * pending applications / plan-ready items
+   * +
+   * new realtime non-message notifications
+   */
   const totalUnread =
-    notifications.filter((n) => !n.read).length + unreadMessages;
+    unreadMessages + initialAttentionCount + realtimeNotificationCount;
 
   return {
     notifications,
     unreadMessages,
     totalUnread,
-    markAllRead,
   };
 }

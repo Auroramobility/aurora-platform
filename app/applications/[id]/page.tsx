@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowRight, CarFront, CheckCircle2 } from "lucide-react";
 
+import { continueToPayment } from "@/features/applications/actions/continue-to-payment";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { DashboardShell } from "@/components/dashboard/dashboard-shell";
@@ -212,9 +213,22 @@ export default async function ApplicationDetailPage({ params }: Props) {
             {nextAction.description}
           </p>
 
-          {nextAction.actionLabel !== "Message Aurora" &&
-          nextAction.href &&
-          nextAction.actionLabel ? (
+          {/* ==================================================
+              APPROVED APPLICATION → MESSAGE AURORA
+              ================================================== */}
+          {nextAction.actionLabel === "Message Aurora" ? (
+            <form
+              action={async () => {
+                await continueToPayment(application.id);
+              }}
+              className="mt-6"
+            >
+              <Button type="submit">
+                Message Aurora
+                <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            </form>
+          ) : nextAction.href && nextAction.actionLabel ? (
             <Button asChild className="mt-6">
               <Link href={nextAction.href}>
                 {nextAction.actionLabel}
@@ -222,6 +236,9 @@ export default async function ApplicationDetailPage({ params }: Props) {
               </Link>
             </Button>
           ) : null}
+          {/* ==================================================
+              OWNERSHIP PLAN
+              ================================================== */}
 
           {application.status === "approved" && ownershipPlan ? (
             <div className="mt-6 rounded-2xl border bg-muted/40 p-4">
@@ -282,6 +299,10 @@ export default async function ApplicationDetailPage({ params }: Props) {
               </Button>
             </div>
           ) : null}
+
+          {/* ==================================================
+              CURRENT STATUS
+              ================================================== */}
 
           <div className="mt-6 rounded-2xl border bg-muted/30 p-4">
             <p className="text-sm font-semibold">
@@ -394,25 +415,13 @@ export default async function ApplicationDetailPage({ params }: Props) {
       {/* ======================================================
           APPLICATION TIMELINE
       ======================================================= */}
+
       <ApplicationStatusTimeline
         applicationId={application.id}
         status={application.status}
         submittedAt={application.application_date}
         approvedAt={application.approved_date}
       />
-
-      {/* ======================================================
-          MESSAGES
-      ======================================================= */}
-
-      <div className="flex justify-center pb-8">
-        <Button asChild variant="outline">
-          <Link href={`/messages?application=${application.id}`}>
-            Message Aurora
-            <ArrowRight className="ml-2 h-4 w-4" />
-          </Link>
-        </Button>
-      </div>
     </DashboardShell>
   );
 }

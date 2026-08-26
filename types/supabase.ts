@@ -787,6 +787,15 @@ export type Database = {
         };
         Returns: string;
       };
+      delete_application_cascade: {
+        Args: { p_application_id: string };
+        Returns: boolean;
+      };
+      delete_identity_cascade: {
+        Args: { p_user_id: string };
+        Returns: boolean;
+      };
+      delete_identity_data: { Args: { p_user_id: string }; Returns: boolean };
       get_or_create_conversation: {
         Args: { p_application_id?: string; p_ownership_plan_id?: string };
         Returns: string;

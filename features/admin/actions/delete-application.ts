@@ -3,7 +3,6 @@
 import { revalidatePath } from "next/cache";
 
 import { requireAdmin } from "@/features/admin/lib/authorization";
-import { safeAdminError } from "@/features/admin/lib/errors";
 
 export type DeleteApplicationState = {
   error?: string;
@@ -18,17 +17,21 @@ export async function deleteApplication(
     const { supabase, user, isAdmin } = await requireAdmin();
 
     if (!user || !isAdmin) {
-      return { error: "Unauthorized." };
+      return {
+        error: "Unauthorized.",
+      };
     }
 
     const applicationId = String(formData.get("application_id") ?? "").trim();
 
     if (!applicationId) {
-      return { error: "Missing application." };
+      return {
+        error: "Missing application.",
+      };
     }
 
     /*
-     * Verify that the application exists before deleting it.
+     * Verify that the application exists.
      */
     const { data: application, error: loadError } = await supabase
       .from("applications")
@@ -37,73 +40,76 @@ export async function deleteApplication(
       .maybeSingle();
 
     if (loadError) {
+      console.error("[deleteApplication] Application load error:", loadError);
+
       return {
-        error: safeAdminError(
-          "The application could not be loaded.",
-          loadError,
-        ),
+        error: "The application could not be loaded.",
       };
     }
 
     if (!application) {
-      return { error: "Application not found." };
+      return {
+        error: "Application not found.",
+      };
     }
 
     /*
-     * Delete ONLY the application.
+     * The database function performs the complete application
+     * cascade deletion.
      *
-     * Existing database foreign keys handle dependent records:
+     * This removes:
      *
-     * application_financing_requests -> CASCADE
-     * ownership_plans                -> CASCADE
-     * ownership plan payments        -> CASCADE
-     * payment allocations            -> CASCADE
+     * application
+     * ownership plans
+     * financing terms
+     * payment schedules
+     * payments
+     * payment allocations
+     * application financing requests
      *
-     * Messages linked to the application use ON DELETE SET NULL,
-     * so the customer's message history is preserved.
-     *
-     * The customer profile/account is NOT deleted.
+     * Conversation records are preserved according to their
+     * database foreign-key behavior.
      */
-    const { data: deletedApplication, error: deleteError } = await supabase
-      .from("applications")
-      .delete()
-      .eq("id", applicationId)
-      .select("id")
-      .maybeSingle();
+    const { data, error: deleteError } = await supabase.rpc(
+      "delete_application_cascade",
+      {
+        p_application_id: applicationId,
+      },
+    );
 
     if (deleteError) {
       console.error("[deleteApplication] Delete error:", deleteError);
 
       return {
-        error: safeAdminError(
-          "The application could not be deleted.",
-          deleteError,
-        ),
-      };
-    }
-
-    if (!deletedApplication) {
-      console.error(
-        "[deleteApplication] Delete affected no rows:",
-        applicationId,
-      );
-
-      return {
-        error:
-          "The application could not be deleted. The database did not remove the application.",
+        error: "The application could not be deleted.",
       };
     }
 
     /*
-     * Refresh affected admin/customer views.
+     * The database function should return true when deletion
+     * succeeds.
+     */
+    if (data !== true) {
+      console.error("[deleteApplication] Delete function returned:", data);
+
+      return {
+        error:
+          "The application could not be deleted. The database did not confirm the deletion.",
+      };
+    }
+
+    /*
+     * Refresh all affected views.
      */
     revalidatePath("/admin");
     revalidatePath("/admin/applications");
     revalidatePath("/admin/ownership");
     revalidatePath("/admin/payments");
+    revalidatePath("/admin/messages");
     revalidatePath("/dashboard");
     revalidatePath("/applications");
     revalidatePath("/payments");
+    revalidatePath("/messages");
 
     return {
       success: "Application deleted.",

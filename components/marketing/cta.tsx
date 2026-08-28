@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { ArrowRight, Calculator, CheckCircle2, Zap } from "lucide-react";
+
 import { Button } from "@/components/ui/button";
 
 export function CTA() {
@@ -79,8 +80,9 @@ export function CTA() {
             {/* Description */}
             <p className="mx-auto mt-7 max-w-3xl text-base leading-8 text-muted-foreground md:text-lg">
               Aurora owns and offers selected electric vehicles through the
-              Aurora Access Programme. Each vehicle has an Aurora Access Price,
-              giving you a clear starting point for your ownership plan.
+              Aurora Access Programme. Each eligible vehicle has an Aurora
+              Access Price, giving you a clear starting point for your ownership
+              plan.
             </p>
 
             <p className="mx-auto mt-4 max-w-3xl text-base leading-8 text-muted-foreground md:text-lg">

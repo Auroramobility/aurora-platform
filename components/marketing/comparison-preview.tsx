@@ -1,43 +1,45 @@
 export function ComparisonPreview() {
   const rows = [
     {
-      feature: "You build ownership equity",
+      feature: "You build toward ownership",
       aurora: "✓",
-      auroraText: "Every contribution moves you toward ownership",
+      auroraText:
+        "Every contribution moves you toward completing your ownership plan",
       finance: "✓",
-      financeText: "After full loan repayment",
+      financeText: "Ownership follows full repayment of the financed purchase",
       lease: "✗",
-      leaseText: "You return the vehicle or buy it separately",
+      leaseText: "You lease the vehicle and return it or purchase separately",
     },
     {
-      feature: "Credit check required",
+      feature: "Traditional credit-based financing",
       aurora: "✓",
-      auroraText: "No traditional credit-based financing",
+      auroraText: "Aurora does not use traditional loan financing",
       finance: "✗",
-      financeText: "Credit approval typically required",
+      financeText: "Credit approval is typically required",
       lease: "✗",
-      leaseText: "Credit approval typically required",
+      leaseText: "Credit approval is typically required",
     },
     {
-      feature: "Interest or finance charges",
+      feature: "Interest charges",
       aurora: "✓",
-      auroraText: "Zero interest",
+      auroraText: "0% interest — no interest is added to your plan",
       finance: "✗",
-      financeText: "Interest charges apply",
+      financeText: "Interest charges depend on the loan",
       lease: "✗",
-      leaseText: "Lease charges and money factor apply",
+      leaseText: "Lease payments include the cost of the lease structure",
     },
     {
       feature: "Vehicle delivery",
       aurora: "✓",
-      auroraText: "After reaching the required 30% contribution threshold",
+      auroraText:
+        "Delivery can proceed after reaching the required 30% contribution threshold",
       finance: "✓",
       financeText: "After purchase and financing approval",
       lease: "✓",
       leaseText: "After lease approval and signing",
     },
     {
-      feature: "Mileage restrictions",
+      feature: "Traditional mileage restrictions",
       aurora: "✓",
       auroraText: "No traditional lease mileage limit",
       finance: "✓",
@@ -46,31 +48,31 @@ export function ComparisonPreview() {
       leaseText: "Mileage limits typically apply",
     },
     {
-      feature: "Early exit penalty",
+      feature: "Early exit structure",
       aurora: "✓",
-      auroraText: "No traditional lease termination structure",
+      auroraText: "Not structured as a traditional lease termination",
       finance: "✓",
-      financeText: "Payoff terms depend on the loan",
+      financeText: "Payoff terms depend on the loan agreement",
       lease: "✗",
       leaseText: "Early termination costs may apply",
     },
     {
-      feature: "Full price transparency",
+      feature: "Price transparency",
       aurora: "✓",
-      auroraText: "Aurora Access Price shown upfront",
+      auroraText: "Aurora Access Price is shown upfront",
       finance: "✗",
-      financeText: "Rate and financing terms vary",
+      financeText: "Final cost depends on rate and financing terms",
       lease: "✗",
-      leaseText: "Lease terms include residual-value calculations",
+      leaseText: "Terms depend on lease pricing and residual value",
     },
     {
       feature: "Ownership progress",
       aurora: "✓",
-      auroraText: "Your contribution and plan stay visible",
+      auroraText: "Your contribution and remaining balance stay visible",
       finance: "✗",
-      financeText: "Loan balance tracks repayment",
+      financeText: "The loan balance tracks repayment",
       lease: "✗",
-      leaseText: "No ownership progress to track",
+      leaseText: "Lease payments do not build vehicle ownership",
     },
   ];
 
@@ -215,7 +217,7 @@ export function ComparisonPreview() {
         {/* Bottom statement */}
         <div className="mx-auto mt-10 max-w-4xl text-center">
           <p className="text-xl font-bold tracking-tight md:text-2xl">
-            Not a loan.
+            Not a traditional loan.
             <span className="text-primary"> Not a lease.</span>
             <span className="block md:inline">
               {" "}
@@ -225,7 +227,8 @@ export function ComparisonPreview() {
 
           <p className="mx-auto mt-3 max-w-2xl text-sm leading-7 text-muted-foreground md:text-base">
             Aurora owns the vehicles we offer. You choose your vehicle and
-            contribution, and your plan gives you a clear path toward ownership.
+            contribution, and your approved plan gives you a clear path toward
+            completing ownership.
           </p>
         </div>
       </div>

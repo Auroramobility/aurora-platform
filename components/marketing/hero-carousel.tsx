@@ -98,51 +98,92 @@ export function HeroCarousel() {
 
   return (
     <section
-      className="relative h-screen min-h-[600px] overflow-hidden"
-      style={{ background: "#0d1710" }}
+      className="relative min-h-[760px] overflow-hidden bg-[#0d1710] sm:min-h-[680px] lg:h-screen lg:min-h-[680px]"
       aria-label="Aurora Mobility"
     >
-      {/* Background slides */}
+      {/* =========================================================
+          BACKGROUND SLIDES
+          ========================================================= */}
+
       {slides.map((item, index) => (
         <div
           key={item.image}
           aria-hidden={index !== active}
+          className="absolute inset-0"
           style={{
-            position: "absolute",
-            inset: 0,
-            backgroundImage: `url(${item.image})`,
-            backgroundSize: "cover",
-            backgroundPosition: "center 40%",
             opacity: index === active ? 1 : 0,
-            transform: index === active ? "scale(1)" : "scale(1.04)",
-            transition:
-              "opacity 1.6s cubic-bezier(.4,0,.2,1), transform 8s ease-out",
-            willChange: "opacity, transform",
+            transition: "opacity 1.6s cubic-bezier(.4,0,.2,1)",
             zIndex: 0,
+            pointerEvents: "none",
           }}
-        />
+        >
+          {/* Desktop / landscape background */}
+          <div
+            className="absolute inset-0 hidden sm:block"
+            style={{
+              backgroundImage: `url(${item.image})`,
+              backgroundSize: "cover",
+              backgroundPosition: "center 40%",
+              transform: index === active ? "scale(1)" : "scale(1.04)",
+              transition: "transform 8s ease-out",
+            }}
+          />
+
+          {/* Mobile portrait image
+              Keeps more of the original image visible instead
+              of aggressively cropping it. */}
+          <div
+            className="absolute inset-0 sm:hidden"
+            style={{
+              backgroundImage: `url(${item.image})`,
+              backgroundRepeat: "no-repeat",
+              backgroundSize: "auto 100%",
+              backgroundPosition: "center top",
+              transform: index === active ? "scale(1)" : "scale(1.025)",
+              transition: "transform 8s ease-out",
+            }}
+          />
+
+          {/* Mobile side atmosphere */}
+          <div
+            className="absolute inset-0 sm:hidden"
+            style={{
+              background:
+                "linear-gradient(180deg,rgba(7,15,11,.18) 0%,rgba(7,15,11,.34) 42%,rgba(7,15,11,.88) 72%,rgba(7,15,11,.98) 100%)",
+            }}
+          />
+        </div>
       ))}
 
-      {/* Main readability overlay */}
+      {/* =========================================================
+          MAIN READABILITY OVERLAY
+          ========================================================= */}
+
       <div
         aria-hidden="true"
+        className="absolute inset-0 z-[1]"
         style={{
-          position: "absolute",
-          inset: 0,
-          zIndex: 1,
           background:
             "linear-gradient(108deg,rgba(7,15,11,.97) 0%,rgba(7,15,11,.84) 36%,rgba(7,15,11,.34) 64%,rgba(7,15,11,.08) 100%)," +
             "linear-gradient(to top,rgba(7,15,11,.62) 0%,transparent 48%)",
         }}
       />
 
+      {/* Mobile-specific readability layer */}
+      <div
+        aria-hidden="true"
+        className="absolute inset-0 z-[2] sm:hidden"
+        style={{
+          background:
+            "linear-gradient(180deg,rgba(7,15,11,.10) 0%,rgba(7,15,11,.16) 30%,rgba(7,15,11,.68) 58%,rgba(7,15,11,.97) 82%,rgba(7,15,11,1) 100%)",
+        }}
+      />
+
       {/* Aurora ambient glow */}
       <div
         aria-hidden="true"
+        className="absolute inset-0 z-[2]"
         style={{
-          position: "absolute",
-          inset: 0,
-          zIndex: 2,
           background:
             "radial-gradient(ellipse 50% 45% at 64% 52%,rgba(16,185,129,.09) 0%,transparent 60%)",
         }}
@@ -151,62 +192,33 @@ export function HeroCarousel() {
       {/* Subtle grid */}
       <div
         aria-hidden="true"
+        className="pointer-events-none absolute inset-0 z-[2]"
         style={{
-          position: "absolute",
-          inset: 0,
-          zIndex: 2,
           backgroundImage:
             "linear-gradient(rgba(255,255,255,.013) 1px,transparent 1px)," +
             "linear-gradient(90deg,rgba(255,255,255,.013) 1px,transparent 1px)",
           backgroundSize: "72px 72px",
-          pointerEvents: "none",
         }}
       />
 
-      {/* Hero content */}
-      <div
-        style={{
-          position: "relative",
-          zIndex: 10,
-          display: "flex",
-          height: "100%",
-          alignItems: "flex-end",
-          paddingBottom: "80px",
-          paddingLeft: "clamp(20px, 6vw, 72px)",
-          paddingRight: "clamp(20px, 6vw, 72px)",
-        }}
-      >
-        <div
-          style={{
-            width: "100%",
-            maxWidth: "1280px",
-            margin: "0 auto",
-          }}
-        >
+      {/* =========================================================
+          HERO CONTENT
+          ========================================================= */}
+
+      <div className="relative z-10 flex min-h-[760px] items-end px-5 pb-14 sm:min-h-[680px] sm:px-6 sm:pb-20 lg:h-full lg:min-h-0 lg:px-[clamp(20px,6vw,72px)]">
+        <div className="mx-auto w-full max-w-[1280px]">
           {/* Eyebrow */}
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: "14px",
-              marginBottom: "26px",
-            }}
-          >
+          <div className="mb-5 flex items-center gap-3 sm:mb-6 sm:gap-[14px]">
             <div
+              className="h-[2px] w-7 sm:w-9"
               style={{
-                width: "36px",
-                height: "2px",
                 background: "linear-gradient(90deg,#10b981,#3b82f6)",
               }}
             />
 
             <span
+              className="text-[9px] font-bold uppercase tracking-[.22em] text-[#6ee7b7] sm:text-[10px] sm:tracking-[.28em]"
               style={{
-                fontSize: "10px",
-                fontWeight: 700,
-                letterSpacing: ".28em",
-                textTransform: "uppercase",
-                color: "#6ee7b7",
                 fontFamily: "'DM Sans', sans-serif",
               }}
             >
@@ -215,23 +227,18 @@ export function HeroCarousel() {
           </div>
 
           {/* Main copy */}
-          <div style={{ maxWidth: "700px" }}>
+          <div className="max-w-[700px]">
             <h1
+              className="mb-3 text-[47px] font-light leading-[.98] tracking-[-.01em] sm:text-[clamp(48px,8vw,76px)] sm:leading-[1.04]"
               style={{
                 fontFamily: "'Cormorant Garamond', Georgia, serif",
-                fontSize: "clamp(48px, 8vw, 76px)",
-                fontWeight: 300,
-                lineHeight: 1.04,
-                letterSpacing: "-.01em",
                 color: "#f5f4f0",
-                marginBottom: "12px",
               }}
             >
               {slide.title}{" "}
               <strong
+                className="block font-semibold"
                 style={{
-                  fontWeight: 600,
-                  display: "block",
                   background:
                     "linear-gradient(135deg,#6ee7b7 0%,#60a5fa 55%,#a78bfa 100%)",
                   WebkitBackgroundClip: "text",
@@ -245,12 +252,9 @@ export function HeroCarousel() {
 
             {/* Supporting statement */}
             <p
+              className="mb-3 max-w-[600px] text-[17px] leading-[1.45] sm:mb-4 sm:text-[20px] sm:leading-[1.5]"
               style={{
-                fontSize: "20px",
                 color: "#f5f4f0",
-                lineHeight: 1.5,
-                maxWidth: "600px",
-                marginBottom: "16px",
                 fontWeight: 400,
               }}
             >
@@ -259,46 +263,34 @@ export function HeroCarousel() {
 
             {/* Main explanation */}
             <p
+              className="mb-5 max-w-[560px] text-[13px] leading-[1.65] sm:mb-[26px] sm:text-[15px] sm:leading-[1.8]"
               style={{
-                fontSize: "15px",
                 color: "rgba(232,238,234,.74)",
-                lineHeight: 1.8,
-                maxWidth: "560px",
-                marginBottom: "26px",
                 fontWeight: 300,
               }}
             >
               {slide.description}
             </p>
 
-            {/* Pricing */}
-            <div
-              style={{
-                display: "flex",
-                alignItems: "flex-end",
-                gap: "26px",
-                flexWrap: "wrap",
-                marginBottom: "26px",
-              }}
-            >
+            {/* =====================================================
+                PRICING
+                ===================================================== */}
+
+            <div className="mb-5 flex flex-wrap items-end gap-x-5 gap-y-4 sm:mb-[26px] sm:gap-x-[26px]">
               {/* Market Price */}
               <div>
                 <div
+                  className="mb-1.5 text-[9px] font-bold uppercase tracking-[.16em] sm:text-[10px] sm:tracking-[.18em]"
                   style={{
-                    fontSize: "10px",
-                    fontWeight: 700,
-                    letterSpacing: ".18em",
-                    textTransform: "uppercase",
                     color: "rgba(255,255,255,.48)",
-                    marginBottom: "6px",
                   }}
                 >
                   Market Price
                 </div>
 
                 <div
+                  className="text-[18px] sm:text-[20px]"
                   style={{
-                    fontSize: "20px",
                     color: "rgba(255,255,255,.55)",
                     textDecoration: "line-through",
                   }}
@@ -310,22 +302,17 @@ export function HeroCarousel() {
               {/* Aurora Access Price */}
               <div>
                 <div
+                  className="mb-1.5 text-[9px] font-bold uppercase tracking-[.16em] sm:text-[10px] sm:tracking-[.18em]"
                   style={{
-                    fontSize: "10px",
-                    fontWeight: 700,
-                    letterSpacing: ".18em",
-                    textTransform: "uppercase",
                     color: "#6ee7b7",
-                    marginBottom: "6px",
                   }}
                 >
                   Aurora Access Price
                 </div>
 
                 <div
+                  className="text-[25px] leading-none sm:text-[28px]"
                   style={{
-                    fontSize: "28px",
-                    lineHeight: 1,
                     fontWeight: 700,
                     color: "#fff",
                   }}
@@ -336,18 +323,15 @@ export function HeroCarousel() {
 
               {/* Savings */}
               <div
+                className="rounded-[5px] px-2.5 py-2"
                 style={{
-                  padding: "8px 12px",
-                  borderRadius: "5px",
                   background: "rgba(16,185,129,.13)",
                   border: "1px solid rgba(110,231,183,.24)",
                 }}
               >
                 <span
+                  className="text-[11px] font-extrabold tracking-[.07em] sm:text-[13px] sm:tracking-[.08em]"
                   style={{
-                    fontSize: "13px",
-                    fontWeight: 800,
-                    letterSpacing: ".08em",
                     color: "#6ee7b7",
                   }}
                 >
@@ -358,10 +342,9 @@ export function HeroCarousel() {
 
             {/* Monthly reference */}
             <div
+              className="mb-5 text-[13px] sm:mb-[30px] sm:text-[14px]"
               style={{
-                fontSize: "14px",
                 color: "rgba(255,255,255,.65)",
-                marginBottom: "30px",
               }}
             >
               As low as{" "}
@@ -375,30 +358,16 @@ export function HeroCarousel() {
               </strong>
             </div>
 
-            {/* CTAs */}
-            <div
-              style={{
-                display: "flex",
-                gap: "14px",
-                flexWrap: "wrap",
-              }}
-            >
+            {/* =====================================================
+                CTAs
+                ===================================================== */}
+
+            <div className="flex flex-col gap-3 sm:flex-row sm:gap-[14px]">
               <Link
                 href="/vehicles"
+                className="inline-flex items-center justify-center gap-2 rounded-md px-7 py-3.5 text-[10px] font-bold uppercase tracking-[.13em] text-white transition-transform duration-200 sm:px-[34px] sm:text-[11px] sm:tracking-[.14em]"
                 style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: "8px",
                   background: "linear-gradient(135deg,#10b981,#3b82f6)",
-                  color: "#fff",
-                  padding: "14px 34px",
-                  fontSize: "11px",
-                  fontWeight: 700,
-                  letterSpacing: ".14em",
-                  textTransform: "uppercase",
-                  textDecoration: "none",
-                  borderRadius: "6px",
-                  transition: "transform .2s, box-shadow .2s",
                 }}
                 onMouseEnter={(event) => {
                   event.currentTarget.style.transform = "translateY(-1px)";
@@ -416,20 +385,11 @@ export function HeroCarousel() {
 
               <Link
                 href="#how-aurora-works"
+                className="inline-flex items-center justify-center rounded-md px-7 py-3.5 text-[10px] font-semibold uppercase tracking-[.11em] transition-all duration-200 sm:px-7 sm:text-[11px] sm:tracking-[.12em]"
                 style={{
-                  display: "inline-flex",
-                  alignItems: "center",
                   background: "transparent",
                   color: "rgba(255,255,255,.76)",
                   border: "1px solid rgba(255,255,255,.22)",
-                  padding: "14px 28px",
-                  fontSize: "11px",
-                  fontWeight: 600,
-                  letterSpacing: ".12em",
-                  textTransform: "uppercase",
-                  textDecoration: "none",
-                  borderRadius: "6px",
-                  transition: "all .2s",
                 }}
                 onMouseEnter={(event) => {
                   event.currentTarget.style.borderColor =
@@ -450,14 +410,12 @@ export function HeroCarousel() {
             </div>
           </div>
 
-          {/* Slide indicators */}
+          {/* =====================================================
+              SLIDE INDICATORS
+              ===================================================== */}
+
           <div
-            style={{
-              marginTop: "42px",
-              display: "flex",
-              gap: "8px",
-              alignItems: "center",
-            }}
+            className="mt-7 flex items-center gap-2 sm:mt-[42px]"
             role="tablist"
             aria-label="Hero slides"
           >
@@ -469,17 +427,14 @@ export function HeroCarousel() {
                 aria-label={`Show slide ${index + 1}`}
                 aria-selected={index === active}
                 role="tab"
+                className="cursor-pointer border-0 p-0 outline-none"
                 style={{
                   height: "7px",
                   width: index === active ? "22px" : "7px",
                   borderRadius: index === active ? "3px" : "50%",
                   background:
                     index === active ? "#fff" : "rgba(255,255,255,.22)",
-                  border: "none",
-                  padding: 0,
-                  cursor: "pointer",
                   transition: "all .28s",
-                  outline: "none",
                 }}
               />
             ))}
@@ -487,26 +442,14 @@ export function HeroCarousel() {
         </div>
       </div>
 
-      {/* Scroll indicator */}
-      <div
-        style={{
-          position: "absolute",
-          bottom: "36px",
-          left: "clamp(20px, 6vw, 72px)",
-          zIndex: 10,
-          display: "flex",
-          alignItems: "center",
-          gap: "12px",
-          fontSize: "9px",
-          letterSpacing: ".22em",
-          textTransform: "uppercase",
-          color: "rgba(255,255,255,.25)",
-        }}
-      >
+      {/* =========================================================
+          SCROLL INDICATOR
+          ========================================================= */}
+
+      <div className="absolute bottom-8 left-5 z-10 hidden items-center gap-3 text-[9px] uppercase tracking-[.22em] text-white/25 sm:left-[clamp(20px,6vw,72px)] sm:flex">
         <div
+          className="h-px w-[34px]"
           style={{
-            width: "34px",
-            height: "1px",
             background: "rgba(255,255,255,.12)",
           }}
         />

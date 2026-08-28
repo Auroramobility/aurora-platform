@@ -128,7 +128,7 @@ export function AuroraOwnershipCard({ price, vehicleId }: Props) {
               <p className="text-sm font-semibold">Your contribution</p>
 
               <p className="mt-1 text-xs text-muted-foreground">
-                Choose from 10% to 100%.
+                Choose from 0% to 100%.
               </p>
             </div>
 
@@ -139,7 +139,7 @@ export function AuroraOwnershipCard({ price, vehicleId }: Props) {
 
           <input
             type="range"
-            min={10}
+            min={0}
             max={100}
             step={10}
             value={downPaymentPercent}
@@ -151,7 +151,7 @@ export function AuroraOwnershipCard({ price, vehicleId }: Props) {
           />
 
           <div className="mt-2 flex justify-between text-xs text-muted-foreground">
-            <span>10%</span>
+            <span>0%</span>
             <span>100%</span>
           </div>
         </div>

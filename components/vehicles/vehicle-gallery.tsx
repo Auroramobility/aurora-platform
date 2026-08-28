@@ -12,7 +12,7 @@ export function VehicleGallery({ images, name }: Props) {
 
   if (images.length === 0) {
     return (
-      <div className="flex h-[480px] items-center justify-center rounded-3xl border bg-muted text-muted-foreground">
+      <div className="flex h-[320px] items-center justify-center rounded-3xl border bg-muted text-muted-foreground sm:h-[400px] lg:h-[480px]">
         No images available
       </div>
     );
@@ -26,7 +26,7 @@ export function VehicleGallery({ images, name }: Props) {
         <img
           src={images[active]!}
           alt={`${name} — image ${active + 1} of ${images.length}`}
-          className="h-[480px] w-full object-cover transition duration-300"
+          className="h-[320px] w-full object-cover transition duration-300 sm:aspect-[16/10] sm:h-[400px] sm:h-auto lg:aspect-auto lg:h-[480px]"
         />
       </div>
 
@@ -38,6 +38,8 @@ export function VehicleGallery({ images, name }: Props) {
               key={src}
               type="button"
               onClick={() => setActive(i)}
+              aria-label={`View image ${i + 1}`}
+              aria-pressed={i === active}
               className={`shrink-0 overflow-hidden rounded-xl border-2 transition ${
                 i === active
                   ? "border-primary ring-2 ring-primary/30"

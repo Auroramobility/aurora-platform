@@ -6,7 +6,9 @@ export function Footer() {
       {/* Aurora color atmosphere */}
       <div aria-hidden="true" className="pointer-events-none absolute inset-0">
         <div className="absolute -left-32 top-0 h-96 w-96 rounded-full bg-emerald-500/[0.07] blur-3xl dark:bg-emerald-500/[0.10]" />
+
         <div className="absolute -top-24 left-[35%] h-80 w-80 rounded-full bg-blue-500/[0.05] blur-3xl dark:bg-blue-500/[0.08]" />
+
         <div className="absolute -right-32 bottom-0 h-96 w-96 rounded-full bg-violet-500/[0.07] blur-3xl dark:bg-violet-500/[0.10]" />
       </div>
 
@@ -40,7 +42,7 @@ export function Footer() {
               <p className="mt-4 max-w-lg text-sm leading-7 text-muted-foreground">
                 Eligible vehicles may be offered at approximately 20% to 30%
                 below comparable market pricing, giving more people the
-                opportunity to explore ownership on terms they can understand.
+                opportunity to explore ownership through a transparent plan.
               </p>
 
               <div className="mt-7 flex flex-wrap gap-2">
@@ -75,6 +77,7 @@ export function Footer() {
                     className="group flex items-center justify-between rounded-xl px-3 py-2.5 text-sm text-muted-foreground transition-all hover:bg-blue-100/80 hover:text-blue-700 dark:hover:bg-blue-500/10 dark:hover:text-blue-400"
                   >
                     <span>Vehicles</span>
+
                     <span className="text-blue-500 opacity-0 transition-opacity group-hover:opacity-100">
                       →
                     </span>
@@ -87,6 +90,7 @@ export function Footer() {
                     className="group flex items-center justify-between rounded-xl px-3 py-2.5 text-sm text-muted-foreground transition-all hover:bg-blue-100/80 hover:text-blue-700 dark:hover:bg-blue-500/10 dark:hover:text-blue-400"
                   >
                     <span>Compare</span>
+
                     <span className="text-blue-500 opacity-0 transition-opacity group-hover:opacity-100">
                       →
                     </span>
@@ -99,6 +103,7 @@ export function Footer() {
                     className="group flex items-center justify-between rounded-xl px-3 py-2.5 text-sm text-muted-foreground transition-all hover:bg-blue-100/80 hover:text-blue-700 dark:hover:bg-blue-500/10 dark:hover:text-blue-400"
                   >
                     <span>Ownership</span>
+
                     <span className="text-blue-500 opacity-0 transition-opacity group-hover:opacity-100">
                       →
                     </span>
@@ -124,6 +129,7 @@ export function Footer() {
                     className="group flex items-center justify-between rounded-xl px-3 py-2.5 text-sm text-muted-foreground transition-all hover:bg-violet-100/80 hover:text-violet-700 dark:hover:bg-violet-500/10 dark:hover:text-violet-400"
                   >
                     <span>About Aurora</span>
+
                     <span className="text-violet-500 opacity-0 transition-opacity group-hover:opacity-100">
                       →
                     </span>
@@ -136,6 +142,7 @@ export function Footer() {
                     className="group flex items-center justify-between rounded-xl px-3 py-2.5 text-sm text-muted-foreground transition-all hover:bg-violet-100/80 hover:text-violet-700 dark:hover:bg-violet-500/10 dark:hover:text-violet-400"
                   >
                     <span>Contact</span>
+
                     <span className="text-violet-500 opacity-0 transition-opacity group-hover:opacity-100">
                       →
                     </span>
@@ -148,6 +155,7 @@ export function Footer() {
                     className="group flex items-center justify-between rounded-xl px-3 py-2.5 text-sm text-muted-foreground transition-all hover:bg-violet-100/80 hover:text-violet-700 dark:hover:bg-violet-500/10 dark:hover:text-violet-400"
                   >
                     <span>Frequently Asked Questions</span>
+
                     <span className="text-violet-500 opacity-0 transition-opacity group-hover:opacity-100">
                       →
                     </span>

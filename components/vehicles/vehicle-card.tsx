@@ -23,7 +23,7 @@ export function VehicleCard({ vehicle }: { vehicle: Vehicle }) {
   return (
     <div className="aurora-card group flex h-full flex-col overflow-hidden rounded-2xl border border-border bg-surface shadow-md">
       {/* Image */}
-      <div className="relative aspect-[16/9] flex-shrink-0 overflow-hidden bg-muted">
+      <div className="relative aspect-[4/3] flex-shrink-0 overflow-hidden bg-muted sm:aspect-[16/9]">
         {vehicle.featured && (
           <div className="aurora-gradient absolute left-2.5 top-2.5 z-10 rounded-full px-2.5 py-1 text-[9px] font-bold uppercase tracking-widest text-background shadow-sm sm:left-3 sm:top-3 sm:px-3 sm:text-[10px]">
             Featured
@@ -34,7 +34,7 @@ export function VehicleCard({ vehicle }: { vehicle: Vehicle }) {
           src={vehicle.image_url || "/images/vehicle-placeholder.svg"}
           alt={`${vehicle.brand} ${vehicle.model}`}
           fill
-          sizes="(max-width: 768px) 100vw, (max-width: 1280px) 50vw, 33vw"
+          sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, (max-width: 1280px) 50vw, 33vw"
           className="object-cover transition duration-500 group-hover:scale-105"
         />
 

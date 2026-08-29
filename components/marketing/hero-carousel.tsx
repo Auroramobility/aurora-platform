@@ -2,84 +2,45 @@
 
 import { useEffect, useState, useCallback } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowRight } from "lucide-react";
 
 const slides = [
-  {
-    image: "/images/hero-1.jpg",
-    eyebrow: "The Aurora Access Programme",
-    title: "Drive Electric.",
-    highlight: "Own Your Way.",
-    subtitle: "The EV you want. A smarter way to make it yours.",
-    description:
-      "Aurora gives you access to eligible EVs at 30–40% below market price, then gives you a clear path toward ownership. Choose your EV. Set your contribution. Build your plan.",
-  },
-  {
-    image: "/images/hero-2.jpg",
-    eyebrow: "The Aurora Access Programme",
-    title: "Drive Electric.",
-    highlight: "Own Your Way.",
-    subtitle: "The EV you want. A smarter way to make it yours.",
-    description:
-      "Aurora gives you access to eligible EVs at 30–40% below market price, then gives you a clear path toward ownership. Choose your EV. Set your contribution. Build your plan.",
-  },
-  {
-    image: "/images/hero-3.jpg",
-    eyebrow: "The Aurora Access Programme",
-    title: "Drive Electric.",
-    highlight: "Own Your Way.",
-    subtitle: "The EV you want. A smarter way to make it yours.",
-    description:
-      "Aurora gives you access to eligible EVs at 30–40% below market price, then gives you a clear path toward ownership. Choose your EV. Set your contribution. Build your plan.",
-  },
-  {
-    image: "/images/hero-4.jpg",
-    eyebrow: "The Aurora Access Programme",
-    title: "Drive Electric.",
-    highlight: "Own Your Way.",
-    subtitle: "The EV you want. A smarter way to make it yours.",
-    description:
-      "Aurora gives you access to eligible EVs at 30–40% below market price, then gives you a clear path toward ownership. Choose your EV. Set your contribution. Build your plan.",
-  },
-  {
-    image: "/images/hero-5.jpg",
-    eyebrow: "The Aurora Access Programme",
-    title: "Drive Electric.",
-    highlight: "Own Your Way.",
-    subtitle: "The EV you want. A smarter way to make it yours.",
-    description:
-      "Aurora gives you access to eligible EVs at 30–40% below market price, then gives you a clear path toward ownership. Choose your EV. Set your contribution. Build your plan.",
-  },
-  {
-    image: "/images/hero-6.jpg",
-    eyebrow: "The Aurora Access Programme",
-    title: "Drive Electric.",
-    highlight: "Own Your Way.",
-    subtitle: "The EV you want. A smarter way to make it yours.",
-    description:
-      "Aurora gives you access to eligible EVs at 30–40% below market price, then gives you a clear path toward ownership. Choose your EV. Set your contribution. Build your plan.",
-  },
-  {
-    image: "/images/hero-7.jpg",
-    eyebrow: "The Aurora Access Programme",
-    title: "Drive Electric.",
-    highlight: "Own Your Way.",
-    subtitle: "The EV you want. A smarter way to make it yours.",
-    description:
-      "Aurora gives you access to eligible EVs at 30–40% below market price, then gives you a clear path toward ownership. Choose your EV. Set your contribution. Build your plan.",
-  },
-  {
-    image: "/images/hero-8.jpg",
-    eyebrow: "The Aurora Access Programme",
-    title: "Drive Electric.",
-    highlight: "Own Your Way.",
-    subtitle: "The EV you want. A smarter way to make it yours.",
-    description:
-      "Aurora gives you access to eligible EVs at 30–40% below market price, then gives you a clear path toward ownership. Choose your EV. Set your contribution. Build your plan.",
-  },
+  { image: "/images/hero-1.jpg" },
+  { image: "/images/hero-2.jpg" },
+  { image: "/images/hero-3.jpg" },
+  { image: "/images/hero-4.jpg" },
+  { image: "/images/hero-5.jpg" },
+  { image: "/images/hero-6.jpg" },
+  { image: "/images/hero-7.jpg" },
+  { image: "/images/hero-8.jpg" },
 ];
 
-export function HeroCarousel() {
+const copy = {
+  eyebrow: "The Aurora Access Programme",
+  title: "Drive Electric.",
+  highlight: "Own Your Way.",
+  subtitle: "The EV you want. A smarter way to make it yours.",
+  description:
+    "Access eligible EVs at 30–40% below market price, with a clear path to ownership.",
+};
+
+export type HeroPricing = {
+  marketPrice: number | null;
+  accessPrice: number | null;
+  discountPercent: number | null;
+};
+
+function money(value: number | null) {
+  if (value == null) return null;
+  return new Intl.NumberFormat("en-US", {
+    style: "currency",
+    currency: "USD",
+    maximumFractionDigits: 0,
+  }).format(value);
+}
+
+export function HeroCarousel({ pricing }: { pricing: HeroPricing }) {
   const [active, setActive] = useState(0);
 
   const goTo = useCallback((index: number) => {
@@ -94,15 +55,15 @@ export function HeroCarousel() {
     return () => clearInterval(timer);
   }, []);
 
-  const slide = slides[active]!;
-
   return (
     <section
-      className="relative min-h-[760px] overflow-hidden bg-[#0d1710] sm:min-h-[680px] lg:h-screen lg:min-h-[680px]"
+      className="relative flex min-h-[100svh] flex-col overflow-hidden bg-[#0d1710] sm:min-h-[680px] lg:h-screen lg:min-h-[680px]"
       aria-label="Aurora Mobility"
     >
       {/* =========================================================
-          BACKGROUND SLIDES
+          BACKGROUND SLIDES (next/image: responsive, lazy, one
+          real network request per breakpoint instead of 8 full
+          -res downloads up front)
           ========================================================= */}
 
       {slides.map((item, index) => (
@@ -117,39 +78,18 @@ export function HeroCarousel() {
             pointerEvents: "none",
           }}
         >
-          {/* Desktop / landscape background */}
-          <div
-            className="absolute inset-0 hidden sm:block"
+          <Image
+            src={item.image}
+            alt=""
+            fill
+            priority={index === 0}
+            loading={index === 0 ? "eager" : "lazy"}
+            sizes="100vw"
+            quality={70}
+            className="object-cover object-[center_40%] sm:object-[center_35%]"
             style={{
-              backgroundImage: `url(${item.image})`,
-              backgroundSize: "cover",
-              backgroundPosition: "center 40%",
               transform: index === active ? "scale(1)" : "scale(1.04)",
               transition: "transform 8s ease-out",
-            }}
-          />
-
-          {/* Mobile portrait image
-              Keeps more of the original image visible instead
-              of aggressively cropping it. */}
-          <div
-            className="absolute inset-0 sm:hidden"
-            style={{
-              backgroundImage: `url(${item.image})`,
-              backgroundRepeat: "no-repeat",
-              backgroundSize: "auto 100%",
-              backgroundPosition: "center top",
-              transform: index === active ? "scale(1)" : "scale(1.025)",
-              transition: "transform 8s ease-out",
-            }}
-          />
-
-          {/* Mobile side atmosphere */}
-          <div
-            className="absolute inset-0 sm:hidden"
-            style={{
-              background:
-                "linear-gradient(180deg,rgba(7,15,11,.18) 0%,rgba(7,15,11,.34) 42%,rgba(7,15,11,.88) 72%,rgba(7,15,11,.98) 100%)",
             }}
           />
         </div>
@@ -175,7 +115,7 @@ export function HeroCarousel() {
         className="absolute inset-0 z-[2] sm:hidden"
         style={{
           background:
-            "linear-gradient(180deg,rgba(7,15,11,.10) 0%,rgba(7,15,11,.16) 30%,rgba(7,15,11,.68) 58%,rgba(7,15,11,.97) 82%,rgba(7,15,11,1) 100%)",
+            "linear-gradient(180deg,rgba(7,15,11,.28) 0%,rgba(7,15,11,.34) 28%,rgba(7,15,11,.74) 56%,rgba(7,15,11,.97) 80%,rgba(7,15,11,1) 100%)",
         }}
       />
 
@@ -205,37 +145,32 @@ export function HeroCarousel() {
           HERO CONTENT
           ========================================================= */}
 
-      <div className="relative z-10 flex min-h-[760px] items-end px-5 pb-14 sm:min-h-[680px] sm:px-6 sm:pb-20 lg:h-full lg:min-h-0 lg:px-[clamp(20px,6vw,72px)]">
+      <div className="relative z-10 flex flex-1 items-end px-5 pb-8 sm:px-6 sm:pb-20 lg:h-full lg:flex-none lg:px-[clamp(20px,6vw,72px)]">
         <div className="mx-auto w-full max-w-[1280px]">
           {/* Eyebrow */}
-          <div className="mb-5 flex items-center gap-3 sm:mb-6 sm:gap-[14px]">
+          <div className="mb-4 flex items-center gap-3 sm:mb-6 sm:gap-[14px]">
             <div
               className="h-[2px] w-7 sm:w-9"
-              style={{
-                background: "linear-gradient(90deg,#10b981,#3b82f6)",
-              }}
+              style={{ background: "linear-gradient(90deg,#10b981,#3b82f6)" }}
             />
-
             <span
-              className="text-[9px] font-bold uppercase tracking-[.22em] text-[#6ee7b7] sm:text-[10px] sm:tracking-[.28em]"
-              style={{
-                fontFamily: "'DM Sans', sans-serif",
-              }}
+              className="text-[9px] font-bold uppercase tracking-[.2em] text-[#6ee7b7] sm:text-[10px] sm:tracking-[.28em]"
+              style={{ fontFamily: "'DM Sans', sans-serif" }}
             >
-              {slide.eyebrow}
+              {copy.eyebrow}
             </span>
           </div>
 
           {/* Main copy */}
           <div className="max-w-[700px]">
             <h1
-              className="mb-3 text-[47px] font-light leading-[.98] tracking-[-.01em] sm:text-[clamp(48px,8vw,76px)] sm:leading-[1.04]"
+              className="mb-2.5 text-[40px] font-light leading-[1] tracking-[-.01em] sm:mb-3 sm:text-[clamp(48px,8vw,76px)] sm:leading-[1.04]"
               style={{
                 fontFamily: "'Cormorant Garamond', Georgia, serif",
                 color: "#f5f4f0",
               }}
             >
-              {slide.title}{" "}
+              {copy.title}{" "}
               <strong
                 className="block font-semibold"
                 style={{
@@ -246,137 +181,120 @@ export function HeroCarousel() {
                   backgroundClip: "text",
                 }}
               >
-                {slide.highlight}
+                {copy.highlight}
               </strong>
             </h1>
 
             {/* Supporting statement */}
             <p
-              className="mb-3 max-w-[600px] text-[17px] leading-[1.45] sm:mb-4 sm:text-[20px] sm:leading-[1.5]"
-              style={{
-                color: "#f5f4f0",
-                fontWeight: 400,
-              }}
+              className="mb-2.5 max-w-[600px] text-[15px] leading-[1.4] sm:mb-4 sm:text-[20px] sm:leading-[1.5]"
+              style={{ color: "#f5f4f0", fontWeight: 400 }}
             >
-              {slide.subtitle}
+              {copy.subtitle}
             </p>
 
-            {/* Main explanation */}
+            {/* Main explanation — shortened; full version only on sm+ */}
             <p
-              className="mb-5 max-w-[560px] text-[13px] leading-[1.65] sm:mb-[26px] sm:text-[15px] sm:leading-[1.8]"
-              style={{
-                color: "rgba(232,238,234,.74)",
-                fontWeight: 300,
-              }}
+              className="mb-4 max-w-[560px] text-[13px] leading-[1.5] sm:mb-[26px] sm:text-[15px] sm:leading-[1.8]"
+              style={{ color: "rgba(232,238,234,.74)", fontWeight: 300 }}
             >
-              {slide.description}
+              {copy.description}
             </p>
 
             {/* =====================================================
-                PRICING
+                PRICING — condensed to one row on mobile.
+                Real numbers from an actual listed vehicle, computed
+                by the same getAuroraPricing() logic used on the
+                vehicle pages — not a placeholder.
                 ===================================================== */}
 
-            <div className="mb-5 flex flex-wrap items-end gap-x-5 gap-y-4 sm:mb-[26px] sm:gap-x-[26px]">
-              {/* Market Price */}
-              <div>
-                <div
-                  className="mb-1.5 text-[9px] font-bold uppercase tracking-[.16em] sm:text-[10px] sm:tracking-[.18em]"
-                  style={{
-                    color: "rgba(255,255,255,.48)",
-                  }}
-                >
-                  Market Price
+            {pricing.marketPrice != null && pricing.accessPrice != null ? (
+              <div className="mb-4 flex flex-wrap items-end gap-x-4 gap-y-3 sm:mb-[26px] sm:gap-x-[26px]">
+                <div>
+                  <div
+                    className="mb-1 text-[9px] font-bold uppercase tracking-[.14em] sm:mb-1.5 sm:text-[10px] sm:tracking-[.18em]"
+                    style={{ color: "rgba(255,255,255,.48)" }}
+                  >
+                    Market Price
+                  </div>
+                  <div
+                    className="text-[16px] sm:text-[20px]"
+                    style={{
+                      color: "rgba(255,255,255,.55)",
+                      textDecoration: "line-through",
+                    }}
+                  >
+                    {money(pricing.marketPrice)}
+                  </div>
                 </div>
 
-                <div
-                  className="text-[18px] sm:text-[20px]"
-                  style={{
-                    color: "rgba(255,255,255,.55)",
-                    textDecoration: "line-through",
-                  }}
-                >
-                  $XX,XXX
+                <div>
+                  <div
+                    className="mb-1 text-[9px] font-bold uppercase tracking-[.14em] sm:mb-1.5 sm:text-[10px] sm:tracking-[.18em]"
+                    style={{ color: "#6ee7b7" }}
+                  >
+                    Aurora Access Price
+                  </div>
+                  <div
+                    className="text-[22px] leading-none sm:text-[28px]"
+                    style={{ fontWeight: 700, color: "#fff" }}
+                  >
+                    {money(pricing.accessPrice)}
+                  </div>
                 </div>
+
+                {pricing.discountPercent != null ? (
+                  <div
+                    className="rounded-[5px] px-2.5 py-1.5 sm:py-2"
+                    style={{
+                      background: "rgba(16,185,129,.13)",
+                      border: "1px solid rgba(110,231,183,.24)",
+                    }}
+                  >
+                    <span
+                      className="text-[10px] font-extrabold tracking-[.06em] sm:text-[13px] sm:tracking-[.08em]"
+                      style={{ color: "#6ee7b7" }}
+                    >
+                      SAVE {pricing.discountPercent}%
+                    </span>
+                  </div>
+                ) : null}
               </div>
-
-              {/* Aurora Access Price */}
-              <div>
-                <div
-                  className="mb-1.5 text-[9px] font-bold uppercase tracking-[.16em] sm:text-[10px] sm:tracking-[.18em]"
-                  style={{
-                    color: "#6ee7b7",
-                  }}
-                >
-                  Aurora Access Price
-                </div>
-
-                <div
-                  className="text-[25px] leading-none sm:text-[28px]"
-                  style={{
-                    fontWeight: 700,
-                    color: "#fff",
-                  }}
-                >
-                  $XX,XXX
-                </div>
-              </div>
-
-              {/* Savings */}
+            ) : (
               <div
-                className="rounded-[5px] px-2.5 py-2"
+                className="mb-4 inline-block rounded-[5px] px-2.5 py-1.5 sm:mb-[26px]"
                 style={{
                   background: "rgba(16,185,129,.13)",
                   border: "1px solid rgba(110,231,183,.24)",
                 }}
               >
                 <span
-                  className="text-[11px] font-extrabold tracking-[.07em] sm:text-[13px] sm:tracking-[.08em]"
-                  style={{
-                    color: "#6ee7b7",
-                  }}
+                  className="text-[10px] font-extrabold tracking-[.06em] sm:text-[13px] sm:tracking-[.08em]"
+                  style={{ color: "#6ee7b7" }}
                 >
-                  SAVE 30–40%
+                  SAVE 30–40% VS MARKET PRICE
                 </span>
               </div>
-            </div>
+            )}
 
-            {/* Monthly reference */}
+            {/* Financing reference */}
             <div
-              className="mb-5 text-[13px] sm:mb-[30px] sm:text-[14px]"
-              style={{
-                color: "rgba(255,255,255,.65)",
-              }}
+              className="mb-4 text-[13px] sm:mb-[30px] sm:text-[14px]"
+              style={{ color: "rgba(255,255,255,.65)" }}
             >
-              As low as{" "}
-              <strong
-                style={{
-                  color: "#fff",
-                  fontWeight: 700,
-                }}
-              >
-                $X/month
-              </strong>
+              Flexible monthly ownership plans — no lump-sum required.
             </div>
 
             {/* =====================================================
                 CTAs
                 ===================================================== */}
 
-            <div className="flex flex-col gap-3 sm:flex-row sm:gap-[14px]">
+            <div className="flex flex-col gap-2.5 sm:flex-row sm:gap-[14px]">
               <Link
                 href="/vehicles"
-                className="inline-flex items-center justify-center gap-2 rounded-md px-7 py-3.5 text-[10px] font-bold uppercase tracking-[.13em] text-white transition-transform duration-200 sm:px-[34px] sm:text-[11px] sm:tracking-[.14em]"
+                className="inline-flex items-center justify-center gap-2 rounded-md px-7 py-3 text-[10px] font-bold uppercase tracking-[.13em] text-white transition-transform duration-200 sm:px-[34px] sm:py-3.5 sm:text-[11px] sm:tracking-[.14em]"
                 style={{
                   background: "linear-gradient(135deg,#10b981,#3b82f6)",
-                }}
-                onMouseEnter={(event) => {
-                  event.currentTarget.style.transform = "translateY(-1px)";
-                  event.currentTarget.style.boxShadow =
-                    "0 10px 30px rgba(16,185,129,.25)";
-                }}
-                onMouseLeave={(event) => {
-                  event.currentTarget.style.transform = "translateY(0)";
-                  event.currentTarget.style.boxShadow = "none";
                 }}
               >
                 Explore EVs
@@ -385,24 +303,11 @@ export function HeroCarousel() {
 
               <Link
                 href="#how-aurora-works"
-                className="inline-flex items-center justify-center rounded-md px-7 py-3.5 text-[10px] font-semibold uppercase tracking-[.11em] transition-all duration-200 sm:px-7 sm:text-[11px] sm:tracking-[.12em]"
+                className="inline-flex items-center justify-center rounded-md px-7 py-3 text-[10px] font-semibold uppercase tracking-[.11em] transition-all duration-200 sm:py-3.5 sm:text-[11px] sm:tracking-[.12em]"
                 style={{
                   background: "transparent",
                   color: "rgba(255,255,255,.76)",
                   border: "1px solid rgba(255,255,255,.22)",
-                }}
-                onMouseEnter={(event) => {
-                  event.currentTarget.style.borderColor =
-                    "rgba(255,255,255,.48)";
-                  event.currentTarget.style.color = "#fff";
-                  event.currentTarget.style.background =
-                    "rgba(255,255,255,.06)";
-                }}
-                onMouseLeave={(event) => {
-                  event.currentTarget.style.borderColor =
-                    "rgba(255,255,255,.22)";
-                  event.currentTarget.style.color = "rgba(255,255,255,.76)";
-                  event.currentTarget.style.background = "transparent";
                 }}
               >
                 How Aurora Works
@@ -415,7 +320,7 @@ export function HeroCarousel() {
               ===================================================== */}
 
           <div
-            className="mt-7 flex items-center gap-2 sm:mt-[42px]"
+            className="mt-5 flex items-center gap-2 sm:mt-[42px]"
             role="tablist"
             aria-label="Hero slides"
           >
@@ -449,9 +354,7 @@ export function HeroCarousel() {
       <div className="absolute bottom-8 left-5 z-10 hidden items-center gap-3 text-[9px] uppercase tracking-[.22em] text-white/25 sm:left-[clamp(20px,6vw,72px)] sm:flex">
         <div
           className="h-px w-[34px]"
-          style={{
-            background: "rgba(255,255,255,.12)",
-          }}
+          style={{ background: "rgba(255,255,255,.12)" }}
         />
         Scroll
       </div>

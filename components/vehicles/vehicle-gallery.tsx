@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import Image from "next/image";
 
 type Props = {
   images: string[];
@@ -21,12 +22,14 @@ export function VehicleGallery({ images, name }: Props) {
   return (
     <div className="space-y-3">
       {/* Main image */}
-      <div className="overflow-hidden rounded-3xl border bg-muted">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img
+      <div className="relative aspect-[4/3] overflow-hidden rounded-3xl border bg-muted sm:aspect-[16/10]">
+        <Image
           src={images[active]!}
           alt={`${name} — image ${active + 1} of ${images.length}`}
-          className="h-[320px] w-full object-cover transition duration-300 sm:aspect-[16/10] sm:h-[400px] sm:h-auto lg:aspect-auto lg:h-[480px]"
+          fill
+          priority={active === 0}
+          sizes="(max-width: 1024px) 100vw, 60vw"
+          className="object-cover transition duration-300"
         />
       </div>
 
@@ -40,17 +43,18 @@ export function VehicleGallery({ images, name }: Props) {
               onClick={() => setActive(i)}
               aria-label={`View image ${i + 1}`}
               aria-pressed={i === active}
-              className={`shrink-0 overflow-hidden rounded-xl border-2 transition ${
+              className={`relative h-16 w-24 shrink-0 overflow-hidden rounded-xl border-2 transition ${
                 i === active
                   ? "border-primary ring-2 ring-primary/30"
                   : "border-transparent hover:border-border"
               }`}
             >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
+              <Image
                 src={src}
                 alt={`${name} thumbnail ${i + 1}`}
-                className="h-16 w-24 object-cover"
+                fill
+                sizes="96px"
+                className="object-cover"
               />
             </button>
           ))}

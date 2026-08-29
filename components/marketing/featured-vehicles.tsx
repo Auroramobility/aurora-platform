@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import { ArrowRight, ChevronRight } from "lucide-react";
 
 import { getVehicles } from "@/features/vehicles/lib/get-vehicles";
@@ -172,19 +173,21 @@ export async function FeaturedVehicles() {
               <Link
                 key={vehicle.id}
                 href={`/vehicles/${vehicle.id}`}
-                className="group block py-5 md:py-6"
+                className="group block"
               >
-                <div className="grid items-center gap-5 md:grid-cols-[180px_minmax(0,1fr)_auto] lg:grid-cols-[220px_minmax(0,1fr)_minmax(260px,auto)_auto]">
+                <div className="grid items-center gap-4 py-5 md:grid-cols-[180px_minmax(0,1fr)_auto] md:gap-5 md:py-6 lg:grid-cols-[220px_minmax(0,1fr)_minmax(260px,auto)_auto]">
                   {/* Image */}
                   <div
                     className={`relative overflow-hidden rounded-2xl border ${accent.border} ${accent.background}`}
                   >
-                    <div className="aspect-[16/10] overflow-hidden">
+                    <div className="relative aspect-[16/10] overflow-hidden">
                       {vehicle.image_url ? (
-                        <img
+                        <Image
                           src={vehicle.image_url}
                           alt={`${vehicle.brand} ${vehicle.model}`}
-                          className="h-full w-full object-cover transition duration-500 group-hover:scale-[1.04]"
+                          fill
+                          sizes="(max-width: 768px) 100vw, (max-width: 1024px) 180px, 220px"
+                          className="object-cover transition duration-500 group-hover:scale-[1.04]"
                         />
                       ) : (
                         <div className="flex h-full items-center justify-center text-xs text-muted-foreground">

@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import {
   ArrowLeft,
   ArrowRight,
@@ -276,15 +277,12 @@ function VehicleSearchCard({
         }}
       >
         {vehicle.image_url ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
+          <Image
             src={vehicle.image_url}
             alt={`${vehicle.brand} ${vehicle.model}`}
-            style={{
-              width: "100%",
-              height: "100%",
-              objectFit: "cover",
-            }}
+            fill
+            sizes="(max-width: 640px) 50vw, 230px"
+            style={{ objectFit: "cover" }}
           />
         ) : (
           <div
@@ -451,9 +449,9 @@ export function ComparePage({ vehicles }: Props) {
       ============================================================ */}
 
       <section
+        className="min-h-[560px] sm:min-h-[640px] lg:min-h-[min(760px,92vh)]"
         style={{
           position: "relative",
-          minHeight: "min(760px, 92vh)",
           display: "flex",
           alignItems: "center",
           overflow: "hidden",
@@ -508,28 +506,21 @@ export function ComparePage({ vehicles }: Props) {
         />
 
         <div
+          className="px-5 py-10 sm:px-8 sm:py-12 lg:px-8 lg:py-[70px]"
           style={{
             position: "relative",
             zIndex: 2,
             width: "100%",
             maxWidth: "1380px",
             margin: "0 auto",
-            padding: "48px 32px 70px",
           }}
         >
           <BackButton
             label="Back"
-            className="mb-[50px] inline-flex items-center gap-[7px] border-0 bg-transparent p-0 text-[9px] font-extrabold uppercase tracking-[.22em] text-[hsl(190_100%_85%/.75)] no-underline transition-opacity hover:opacity-80"
+            className="mb-8 inline-flex items-center gap-[7px] border-0 bg-transparent p-0 text-[9px] font-extrabold uppercase tracking-[.22em] text-[hsl(190_100%_85%/.75)] no-underline transition-opacity hover:opacity-80 sm:mb-[50px]"
           />
 
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: "minmax(0, 1.15fr) minmax(320px, .85fr)",
-              alignItems: "center",
-              gap: "70px",
-            }}
-          >
+          <div className="grid grid-cols-1 items-center gap-10 lg:grid-cols-[minmax(0,1.15fr)_minmax(320px,.85fr)] lg:gap-[70px]">
             <div>
               <div
                 style={{
@@ -557,10 +548,10 @@ export function ComparePage({ vehicles }: Props) {
                   margin: 0,
                   maxWidth: "780px",
                   fontFamily: "'Cormorant Garamond', Georgia, serif",
-                  fontSize: "clamp(64px, 9vw, 118px)",
-                  lineHeight: ".84",
+                  fontSize: "clamp(48px, 12vw, 118px)",
+                  lineHeight: ".9",
                   fontWeight: 600,
-                  letterSpacing: "-.035em",
+                  letterSpacing: "-.03em",
                   color: "white",
                 }}
               >
@@ -579,25 +570,24 @@ export function ComparePage({ vehicles }: Props) {
               </h1>
 
               <p
+                className="text-[14px] sm:text-[17px]"
                 style={{
                   maxWidth: "610px",
-                  margin: "30px 0 0",
-                  fontSize: "17px",
-                  lineHeight: 1.75,
+                  margin: "18px 0 0",
+                  lineHeight: 1.65,
                   color: "hsl(210 30% 90% / .72)",
                 }}
               >
-                Put the vehicles that matter to you side-by-side. See the
-                numbers, understand the differences, and find the EV that fits
-                your journey.
+                Put the vehicles that matter to you side-by-side and find the EV
+                that fits your journey.
               </p>
 
               <div
                 style={{
                   display: "flex",
                   flexWrap: "wrap",
-                  gap: "12px",
-                  marginTop: "34px",
+                  gap: "10px",
+                  marginTop: "22px",
                 }}
               >
                 <div
@@ -676,9 +666,9 @@ export function ComparePage({ vehicles }: Props) {
 
             {/* Selection status card */}
             <div
+              className="p-6 sm:p-[34px]"
               style={{
                 position: "relative",
-                padding: "34px",
                 borderRadius: "28px",
                 background:
                   "linear-gradient(145deg, hsl(0 0% 100% / .13), hsl(0 0% 100% / .045))",
@@ -959,6 +949,7 @@ export function ComparePage({ vehicles }: Props) {
 
                       <div
                         style={{
+                          position: "relative",
                           width: "100%",
                           aspectRatio: "16 / 9",
                           marginBottom: "12px",
@@ -968,15 +959,12 @@ export function ComparePage({ vehicles }: Props) {
                         }}
                       >
                         {vehicle.image_url ? (
-                          // eslint-disable-next-line @next/next/no-img-element
-                          <img
+                          <Image
                             src={vehicle.image_url}
                             alt={`${vehicle.brand} ${vehicle.model}`}
-                            style={{
-                              width: "100%",
-                              height: "100%",
-                              objectFit: "cover",
-                            }}
+                            fill
+                            sizes="(max-width: 768px) 40vw, 180px"
+                            style={{ objectFit: "cover" }}
                           />
                         ) : null}
                       </div>

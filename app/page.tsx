@@ -25,11 +25,10 @@ export default function HomePage() {
         <WhyAurora />
 
         {/* 03 */}
-        <DifferentWayToOwn />
-
-        {/* 04 */}
         <FeaturedVehicles />
 
+        {/* 04 */}
+        <DifferentWayToOwn />
         {/* 05 */}
         <AuroraPromise />
 
